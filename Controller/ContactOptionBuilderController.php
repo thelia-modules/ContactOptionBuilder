@@ -38,14 +38,16 @@ class ContactOptionBuilderController extends BaseFrontController
 
     public function sendAction()
     {
+        // Obtain and dipatch CAPTCHA event
         $checkCaptchaEvent = new ReCaptchaCheckEvent();
         $this->dispatch(ReCaptchaEvents::CHECK_CAPTCHA_EVENT, $checkCaptchaEvent);
 
-        $contactForm = $this->createForm('contactoptionbuilder.front.form');
+        $contactForm = $this->createForm('contactoptionbuilder.front.form'); // Get contact form
 
         try {
-            $form = $this->validateForm($contactForm);
+            $form = $this->validateForm($contactForm); // Validation of the form constraints
 
+            // Check CAPTCHA success
             if ($checkCaptchaEvent->isHuman() == false) {
                 $err_message = $this->getTranslator()->trans(
                     "Invalid captcha",
@@ -57,27 +59,30 @@ class ContactOptionBuilderController extends BaseFrontController
 
             $subjectId = $form->get('contact_subject')->getData();
 
-
             /** @var COBService $cobService */
-            $cobService = $this->getContainer()->get('contactoptionbuilder.service');
+            $cobService = $this->getContainer()->get('contactoptionbuilder.service'); // Get COB Service
 
-            $to = $cobService->getDestinationEmail($subjectId);
-            $subjectLabel = $cobService->getSubject($subjectId);
+            $to = $cobService->getDestinationEmail($subjectId); // Get destination email for selected subject
+            $subjectLabel = $cobService->getSubject($subjectId); // Get subject label for selected subject
 
+            // Creating email template
             $htmlBody = '<p><strong>'.$subjectLabel.'</strong></p>';
             $htmlBody .= '<p>'.$form->get('message')->getData().'</p>';
             $htmlBody .= '<p>'.$form->get('name')->getData().'/'.$form->get('email')->getData().'</p>';
 
+            // If there is a company name, add it to the email
             if($form->get('company_name')->getData()){
                 $htmlBody.='<span>Raison sociale :';
                 $htmlBody.= $form->get('company_name')->getData().'</span>';
             }
 
+            // If there is an order reference, add it to the email
             if($form->get('order')->getData()){
                 $htmlBody.='</p><span>Commande n°:';
                 $htmlBody.= $form->get('order')->getData().'</span>';
             }
 
+            // Send the mail
             $this->getMailer()->sendSimpleEmailMessage(
                 [ConfigQuery::getStoreEmail() => $form->get('name')->getData()],
                 [$to],
@@ -89,11 +94,12 @@ class ContactOptionBuilderController extends BaseFrontController
                 [$form->get('email')->getData() => $form->get('name')->getData()]
             );
 
+            // Auto redirect with success case
             if ($contactForm->hasSuccessUrl()) {
                 return $this->generateSuccessRedirect($contactForm);
             }
 
-            return $this->generateRedirectFromRoute('contact.success');
+            return $this->generateRedirectFromRoute('contact.success'); // Explicit redirect
 
         } catch (FormValidationException $e) {
             $error_message = $e->getMessage();
