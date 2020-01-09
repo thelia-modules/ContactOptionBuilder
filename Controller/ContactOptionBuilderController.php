@@ -33,6 +33,12 @@ use Thelia\Form\Exception\FormValidationException;
 use Thelia\Log\Tlog;
 use Thelia\Model\ConfigQuery;
 
+/**
+ * Class ContactOptionBuilderController
+ * @package ContactOptionBuilder\Controller
+ *
+ * Call when contact form is submitted.
+ */
 class ContactOptionBuilderController extends BaseFrontController
 {
 

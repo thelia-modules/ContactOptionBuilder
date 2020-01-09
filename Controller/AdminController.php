@@ -13,6 +13,12 @@ use Thelia\Core\Translation\Translator;
 use Thelia\Form\Exception\FormValidationException;
 use Thelia\Tools\URL;
 
+/**
+ * Class AdminController
+ * @package ContactOptionBuilder\Controller
+ *
+ * Let Admin create and remove subject for contact form.
+ */
 class AdminController extends BaseAdminController
 {
     public function addSubjectAction()
