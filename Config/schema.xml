@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database defaultIdMethod="native" name="thelia"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../vendor/propel/propel/resources/xsd/database.xsd" >
+
+    <table name="contact_option_form_buider" namespace="ContactOptionBuilder\Model">
+        <column autoIncrement="true" name="id_cofb" primaryKey="true" required="true" type="INTEGER"/>
+        <column name="subject_cofb" required="true" size="78" type="VARCHAR"/>
+        <column name="type_user_cofb" required="false" type="BOOLEAN" defaultValue="0"/>
+        <column name="order_opt_cofb" required="false" type="BOOLEAN" defaultValue="0"/>
+        <column name="raison_sociale_opt_cofb" required="false" type="BOOLEAN" defaultValue="0"/>
+        <column name="message_cofb" required="false" type="VARCHAR" size="500"/>
+        <column name="email_to_cofb" required="true" type="VARCHAR" size="255"/>
+
+        <unique name="contact_option_form_buider_subject">
+            <unique-column name="subject_cofb"/>
+        </unique>
+    </table>
+
+    <external-schema filename="local/config/schema.xml" referenceOnly="true" />
+</database>

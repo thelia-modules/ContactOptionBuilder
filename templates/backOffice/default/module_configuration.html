@@ -1,0 +1,125 @@
+<div class="general-block-decorator">
+    <div class="row">
+        <div class="col-md-12 title ">
+            {intl l="Contact Form Configuration"}
+        </div>
+    </div>
+    <div class="form-container">
+        <div class="row inner-toolbar"></div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="title title-without-tabs clearfix">{intl l="Subject"}</div>
+                {form name="contactoptionbuilder.subject.form"}
+                <form method="POST" id="cob-form" action="{url path="/admin/module/contactoptionbuilder/addsubject"}" {form_enctype} class="clearfix">
+                    <div class="row general-block-decorator">
+                        <div class="col-md-12">
+                            {form_hidden_fields}
+
+                            {if $form_error}<div class="alert alert-danger">{$form_error_message}</div>{/if}
+
+                            {form_field form=$form field='success_url'}
+                                <input type="hidden" name="{$name}" value="{url path={navigate to="current"}}"/>
+                            {/form_field}
+
+                            <div class="align-left">
+                            {render_form_field field="cob_subject"}
+                            {render_form_field field="email_to"}
+                            {render_form_field field="cob_message"}
+
+                            {render_form_field field="cob_user_thelia"}
+                            {render_form_field field="cob_order_option"}
+                            {render_form_field field="cob_rs_option"}
+
+                            {include
+                            hide_flags = true
+                            file = "includes/inner-form-toolbar.html"
+                            page_url   = {url path='/admin/module/contactoptionbuilder'}
+                            }
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                {/form}
+        </div>
+    </div>
+</div>
+
+<div class="general-block-decorator">
+    <div class="row">
+        <div class="col-xs-12 title title-without-tabs clearfix">
+            {intl l="Form option"}
+        </div>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>
+                    {intl l="ID"}
+                </th>
+                <th>
+                    {intl l="Subject"}
+                </th>
+                <th>
+                    {intl l="Thelia User"}
+                </th>
+                <th>
+                    {intl l="List Order option"}
+                </th>
+                <th>
+                    {intl l="Company Name option"}
+                </th>
+                <th>
+                    {intl l="Destination Email"}
+                </th>
+                <th>
+                    {intl l="Tips"}
+                </th>
+                <th>
+
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {loop type="contactoptionbuilder.contact.option.loop" name="contactoptionbuilder.contact.option.loop" }
+                <tr>
+                    <td>
+                        {$ID_COB}
+                    </td>
+                    <td>
+                        {$SUBJECT_COB}
+                    </td>
+                    <td>
+                       {if $TYPE_USER_COB == 0}
+                           <span class="glyphicon glyphicon-remove text-danger"></span>
+                       {else}
+                           <span class="glyphicon glyphicon-ok text-success"</span>
+                       {/if}
+                    </td>
+                    <td>
+                        {if $COMMANDE_OPT_COB  == 0}
+                            <span class="glyphicon glyphicon-remove text-danger"></span>
+                        {else}
+                            <span class="glyphicon glyphicon-ok text-success"</span>
+                        {/if}
+                    </td>
+                    <td>
+                        {if $COMPANY_NAME_OPT_COB  == 0}
+                            <span class="glyphicon glyphicon-remove text-danger"></span>
+                        {else}
+                            <span class="glyphicon glyphicon-ok text-success"</span>
+                        {/if}
+                    </td>
+                    <td>
+                        {$EMAIL_TO_COB}
+                    </td>
+                    <td>
+                        {$MESSAGE_OPT_COB }
+                    </td>
+                    <td>
+                        <a class="btn btn-default btn-danger" href="{url path="/admin/module/contactoptionbuilder/delsubject/"}{$ID_COB}" title="{intl l="ACTION_DELETE_SUBJECT"}"><span class="glyphicon glyphicon-remove-sign"></span></a>
+                    </td>
+                </tr>
+            {/loop}
+            </tbody>
+        </table>
+    </div>
+</div>

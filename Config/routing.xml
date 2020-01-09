@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
+
+    <route id="contactoptionbuilder.add.subject.root" path="/admin/module/contactoptionbuilder/addsubject" methods="POST">
+        <default key="_controller">ContactOptionBuilder\Controller\AdminController::addSubjectAction</default>
+    </route>
+
+    <route id="contactoptionbuilder.del.subject.root" path="/admin/module/contactoptionbuilder/delsubject/{idSubject}">
+        <default key="_controller">ContactOptionBuilder\Controller\AdminController::delSubjectAction</default>
+    </route>
+
+    <!-- contact management -->
+    <route id="contact.send" path="/contact" methods="post">
+        <default key="_controller">ContactOptionBuilder\Controller\ContactOptionBuilderController::sendAction</default>
+        <default key="_view">contact</default>
+    </route>
+    <!-- end contact management -->
+
+</routes>
