@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<config xmlns="http://thelia.net/schema/dic/config"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
+
+    <loops>
+        <loop name="contactoptionbuilder.contact.option.loop" class="ContactOptionBuilder\Loop\ContactOptionLoop" />
+    </loops>
+
+    <forms>
+        <form name="contactoptionbuilder.subject.form" class="ContactOptionBuilder\Form\SubjectAdminForm" />
+        <form name="contactoptionbuilder.front.form" class="ContactOptionBuilder\Form\ContactOptionForm" />
+    </forms>
+
+    <commands>
+    </commands>
+
+    <services>
+        <service id="contactoptionbuilder.service" class="ContactOptionBuilder\Service\COBService">
+        </service>
+    </services>
+
+    <hooks>
+        <hook id="contactoptionbuilder.admin.hook" class="ContactOptionBuilder\Hook\AdminInterfaceHook" scope="request">
+            <tag name="hook.event_listener" event="main.top-menu-tools" type="back" method="onMainTopMenuTools"/>
+            <argument type="service" id="thelia.securityContext"/>
+        </hook>
+
+        <hook id="contactoptionbuilder.manager.config.hook" class="ContactOptionBuilder\Hook\ConfigurationHook" scope="request">
+            <tag name="hook.event_listener" event="module.configuration" type="backoffice" />
+        </hook>
+    </hooks>
+
+</config>
