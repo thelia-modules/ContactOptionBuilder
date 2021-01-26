@@ -2,14 +2,15 @@
 
 namespace ContactOptionBuilder\Loop;
 
-use ContactOptionBuilder\Model\ContactOptionFormBuider;
-use ContactOptionBuilder\Model\ContactOptionFormBuiderQuery;
+use ContactOptionBuilder\Model\ContactOptionFormBuilder;
+use ContactOptionBuilder\Model\ContactOptionFormBuilderQuery;
 use Thelia\Core\Template\Element\BaseLoop;
 use Thelia\Core\Template\Element\LoopResult;
 use Thelia\Core\Template\Element\LoopResultRow;
 use Thelia\Core\Template\Element\PropelSearchLoopInterface;
 use Thelia\Core\Template\Loop\Argument\Argument;
 use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
+use Thelia\Model\LangQuery;
 
 
 class ContactOptionLoop extends BaseLoop implements PropelSearchLoopInterface
@@ -24,13 +25,14 @@ class ContactOptionLoop extends BaseLoop implements PropelSearchLoopInterface
     {
         return new ArgumentCollection(
             Argument::createIntListTypeArgument('id_cob'),
-            Argument::createBooleanTypeArgument('user_logout')
+            Argument::createBooleanTypeArgument('user_logout'),
+            Argument::createIntTypeArgument('lang_id')
         );
     }
 
     public function buildModelCriteria()
     {
-        $contacts = ContactOptionFormBuiderQuery::create();
+        $contacts = ContactOptionFormBuilderQuery::create();
 
         if($idCob = $this->getIdCob()){
             $contacts->filterByIdCofb($idCob);
@@ -45,9 +47,16 @@ class ContactOptionLoop extends BaseLoop implements PropelSearchLoopInterface
 
     public function parseResults(LoopResult $loopResult)
     {
-        /** @var ContactOptionFormBuider $contactForm */
+        $lang = LangQuery::create()->filterById($this->getLangId())->findOne();
+        if (!$lang){
+            $lang = $this->getCurrentRequest()->getSession()->getLang();
+        }
+        if (!$lang){
+            $lang = LangQuery::create()->filterByByDefault(1)->findOne();
+        }
+        /** @var ContactOptionFormBuilder $contactForm */
         foreach ($loopResult->getResultDataCollection() as $contactForm) {
-
+            $contactForm->setLocale($lang->getLocale());
             $loopResultRow = new LoopResultRow($contactForm);
             $loopResultRow->set('ID_COB', $contactForm->getIdCofb());
             $loopResultRow->set('SUBJECT_COB', $contactForm->getSubjectCofb());

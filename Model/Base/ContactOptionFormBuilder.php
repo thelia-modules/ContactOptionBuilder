@@ -4,25 +4,29 @@ namespace ContactOptionBuilder\Model\Base;
 
 use \Exception;
 use \PDO;
-use ContactOptionBuilder\Model\ContactOptionFormBuiderQuery as ChildContactOptionFormBuiderQuery;
-use ContactOptionBuilder\Model\Map\ContactOptionFormBuiderTableMap;
+use ContactOptionBuilder\Model\ContactOptionFormBuilder as ChildContactOptionFormBuilder;
+use ContactOptionBuilder\Model\ContactOptionFormBuilderI18n as ChildContactOptionFormBuilderI18n;
+use ContactOptionBuilder\Model\ContactOptionFormBuilderI18nQuery as ChildContactOptionFormBuilderI18nQuery;
+use ContactOptionBuilder\Model\ContactOptionFormBuilderQuery as ChildContactOptionFormBuilderQuery;
+use ContactOptionBuilder\Model\Map\ContactOptionFormBuilderTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Propel\Runtime\Collection\Collection;
+use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\BadMethodCallException;
 use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Parser\AbstractParser;
 
-abstract class ContactOptionFormBuider implements ActiveRecordInterface
+abstract class ContactOptionFormBuilder implements ActiveRecordInterface
 {
     /**
      * TableMap class name
      */
-    const TABLE_MAP = '\\ContactOptionBuilder\\Model\\Map\\ContactOptionFormBuiderTableMap';
+    const TABLE_MAP = '\\ContactOptionBuilder\\Model\\Map\\ContactOptionFormBuilderTableMap';
 
 
     /**
@@ -58,12 +62,6 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
     protected $id_cofb;
 
     /**
-     * The value for the subject_cofb field.
-     * @var        string
-     */
-    protected $subject_cofb;
-
-    /**
      * The value for the type_user_cofb field.
      * Note: this column has a database default value of: false
      * @var        boolean
@@ -85,16 +83,10 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
     protected $raison_sociale_opt_cofb;
 
     /**
-     * The value for the message_cofb field.
-     * @var        string
+     * @var        ObjectCollection|ChildContactOptionFormBuilderI18n[] Collection to store aggregation of ChildContactOptionFormBuilderI18n objects.
      */
-    protected $message_cofb;
-
-    /**
-     * The value for the email_to_cofb field.
-     * @var        string
-     */
-    protected $email_to_cofb;
+    protected $collContactOptionFormBuilderI18ns;
+    protected $collContactOptionFormBuilderI18nsPartial;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -103,6 +95,26 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      * @var boolean
      */
     protected $alreadyInSave = false;
+
+    // i18n behavior
+
+    /**
+     * Current locale
+     * @var        string
+     */
+    protected $currentLocale = 'en_US';
+
+    /**
+     * Current translation objects
+     * @var        array[ChildContactOptionFormBuilderI18n]
+     */
+    protected $currentTranslations;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection
+     */
+    protected $contactOptionFormBuilderI18nsScheduledForDeletion = null;
 
     /**
      * Applies default values to this object.
@@ -118,7 +130,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
     }
 
     /**
-     * Initializes internal state of ContactOptionBuilder\Model\Base\ContactOptionFormBuider object.
+     * Initializes internal state of ContactOptionBuilder\Model\Base\ContactOptionFormBuilder object.
      * @see applyDefaults()
      */
     public function __construct()
@@ -215,9 +227,9 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
     }
 
     /**
-     * Compares this with another <code>ContactOptionFormBuider</code> instance.  If
-     * <code>obj</code> is an instance of <code>ContactOptionFormBuider</code>, delegates to
-     * <code>equals(ContactOptionFormBuider)</code>.  Otherwise, returns <code>false</code>.
+     * Compares this with another <code>ContactOptionFormBuilder</code> instance.  If
+     * <code>obj</code> is an instance of <code>ContactOptionFormBuilder</code>, delegates to
+     * <code>equals(ContactOptionFormBuilder)</code>.  Otherwise, returns <code>false</code>.
      *
      * @param  mixed   $obj The object to compare to.
      * @return boolean Whether equal to the object specified.
@@ -300,7 +312,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      * @param string $name  The virtual column name
      * @param mixed  $value The value to give to the virtual column
      *
-     * @return ContactOptionFormBuider The current object, for fluid interface
+     * @return ContactOptionFormBuilder The current object, for fluid interface
      */
     public function setVirtualColumn($name, $value)
     {
@@ -332,7 +344,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      *                       or a format name ('XML', 'YAML', 'JSON', 'CSV')
      * @param string $data The source data to import from
      *
-     * @return ContactOptionFormBuider The current object, for fluid interface
+     * @return ContactOptionFormBuilder The current object, for fluid interface
      */
     public function importFrom($parser, $data)
     {
@@ -389,17 +401,6 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
     }
 
     /**
-     * Get the [subject_cofb] column value.
-     *
-     * @return   string
-     */
-    public function getSubjectCofb()
-    {
-
-        return $this->subject_cofb;
-    }
-
-    /**
      * Get the [type_user_cofb] column value.
      *
      * @return   boolean
@@ -433,32 +434,10 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
     }
 
     /**
-     * Get the [message_cofb] column value.
-     *
-     * @return   string
-     */
-    public function getMessageCofb()
-    {
-
-        return $this->message_cofb;
-    }
-
-    /**
-     * Get the [email_to_cofb] column value.
-     *
-     * @return   string
-     */
-    public function getEmailToCofb()
-    {
-
-        return $this->email_to_cofb;
-    }
-
-    /**
      * Set the value of [id_cofb] column.
      *
      * @param      int $v new value
-     * @return   \ContactOptionBuilder\Model\ContactOptionFormBuider The current object (for fluent API support)
+     * @return   \ContactOptionBuilder\Model\ContactOptionFormBuilder The current object (for fluent API support)
      */
     public function setIdCofb($v)
     {
@@ -468,33 +447,12 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
 
         if ($this->id_cofb !== $v) {
             $this->id_cofb = $v;
-            $this->modifiedColumns[ContactOptionFormBuiderTableMap::ID_COFB] = true;
+            $this->modifiedColumns[ContactOptionFormBuilderTableMap::ID_COFB] = true;
         }
 
 
         return $this;
     } // setIdCofb()
-
-    /**
-     * Set the value of [subject_cofb] column.
-     *
-     * @param      string $v new value
-     * @return   \ContactOptionBuilder\Model\ContactOptionFormBuider The current object (for fluent API support)
-     */
-    public function setSubjectCofb($v)
-    {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->subject_cofb !== $v) {
-            $this->subject_cofb = $v;
-            $this->modifiedColumns[ContactOptionFormBuiderTableMap::SUBJECT_COFB] = true;
-        }
-
-
-        return $this;
-    } // setSubjectCofb()
 
     /**
      * Sets the value of the [type_user_cofb] column.
@@ -504,7 +462,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
      *
      * @param      boolean|integer|string $v The new value
-     * @return   \ContactOptionBuilder\Model\ContactOptionFormBuider The current object (for fluent API support)
+     * @return   \ContactOptionBuilder\Model\ContactOptionFormBuilder The current object (for fluent API support)
      */
     public function setTypeUserCofb($v)
     {
@@ -518,7 +476,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
 
         if ($this->type_user_cofb !== $v) {
             $this->type_user_cofb = $v;
-            $this->modifiedColumns[ContactOptionFormBuiderTableMap::TYPE_USER_COFB] = true;
+            $this->modifiedColumns[ContactOptionFormBuilderTableMap::TYPE_USER_COFB] = true;
         }
 
 
@@ -533,7 +491,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
      *
      * @param      boolean|integer|string $v The new value
-     * @return   \ContactOptionBuilder\Model\ContactOptionFormBuider The current object (for fluent API support)
+     * @return   \ContactOptionBuilder\Model\ContactOptionFormBuilder The current object (for fluent API support)
      */
     public function setOrderOptCofb($v)
     {
@@ -547,7 +505,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
 
         if ($this->order_opt_cofb !== $v) {
             $this->order_opt_cofb = $v;
-            $this->modifiedColumns[ContactOptionFormBuiderTableMap::ORDER_OPT_COFB] = true;
+            $this->modifiedColumns[ContactOptionFormBuilderTableMap::ORDER_OPT_COFB] = true;
         }
 
 
@@ -562,7 +520,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
      *
      * @param      boolean|integer|string $v The new value
-     * @return   \ContactOptionBuilder\Model\ContactOptionFormBuider The current object (for fluent API support)
+     * @return   \ContactOptionBuilder\Model\ContactOptionFormBuilder The current object (for fluent API support)
      */
     public function setRaisonSocialeOptCofb($v)
     {
@@ -576,54 +534,12 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
 
         if ($this->raison_sociale_opt_cofb !== $v) {
             $this->raison_sociale_opt_cofb = $v;
-            $this->modifiedColumns[ContactOptionFormBuiderTableMap::RAISON_SOCIALE_OPT_COFB] = true;
+            $this->modifiedColumns[ContactOptionFormBuilderTableMap::RAISON_SOCIALE_OPT_COFB] = true;
         }
 
 
         return $this;
     } // setRaisonSocialeOptCofb()
-
-    /**
-     * Set the value of [message_cofb] column.
-     *
-     * @param      string $v new value
-     * @return   \ContactOptionBuilder\Model\ContactOptionFormBuider The current object (for fluent API support)
-     */
-    public function setMessageCofb($v)
-    {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->message_cofb !== $v) {
-            $this->message_cofb = $v;
-            $this->modifiedColumns[ContactOptionFormBuiderTableMap::MESSAGE_COFB] = true;
-        }
-
-
-        return $this;
-    } // setMessageCofb()
-
-    /**
-     * Set the value of [email_to_cofb] column.
-     *
-     * @param      string $v new value
-     * @return   \ContactOptionBuilder\Model\ContactOptionFormBuider The current object (for fluent API support)
-     */
-    public function setEmailToCofb($v)
-    {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->email_to_cofb !== $v) {
-            $this->email_to_cofb = $v;
-            $this->modifiedColumns[ContactOptionFormBuiderTableMap::EMAIL_TO_COFB] = true;
-        }
-
-
-        return $this;
-    } // setEmailToCofb()
 
     /**
      * Indicates whether the columns in this object are only set to default values.
@@ -674,26 +590,17 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
         try {
 
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : ContactOptionFormBuiderTableMap::translateFieldName('IdCofb', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : ContactOptionFormBuilderTableMap::translateFieldName('IdCofb', TableMap::TYPE_PHPNAME, $indexType)];
             $this->id_cofb = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : ContactOptionFormBuiderTableMap::translateFieldName('SubjectCofb', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->subject_cofb = (null !== $col) ? (string) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : ContactOptionFormBuiderTableMap::translateFieldName('TypeUserCofb', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : ContactOptionFormBuilderTableMap::translateFieldName('TypeUserCofb', TableMap::TYPE_PHPNAME, $indexType)];
             $this->type_user_cofb = (null !== $col) ? (boolean) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ContactOptionFormBuiderTableMap::translateFieldName('OrderOptCofb', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : ContactOptionFormBuilderTableMap::translateFieldName('OrderOptCofb', TableMap::TYPE_PHPNAME, $indexType)];
             $this->order_opt_cofb = (null !== $col) ? (boolean) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ContactOptionFormBuiderTableMap::translateFieldName('RaisonSocialeOptCofb', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ContactOptionFormBuilderTableMap::translateFieldName('RaisonSocialeOptCofb', TableMap::TYPE_PHPNAME, $indexType)];
             $this->raison_sociale_opt_cofb = (null !== $col) ? (boolean) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ContactOptionFormBuiderTableMap::translateFieldName('MessageCofb', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->message_cofb = (null !== $col) ? (string) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : ContactOptionFormBuiderTableMap::translateFieldName('EmailToCofb', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->email_to_cofb = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -702,10 +609,10 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 7; // 7 = ContactOptionFormBuiderTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 4; // 4 = ContactOptionFormBuilderTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
-            throw new PropelException("Error populating \ContactOptionBuilder\Model\ContactOptionFormBuider object", 0, $e);
+            throw new PropelException("Error populating \ContactOptionBuilder\Model\ContactOptionFormBuilder object", 0, $e);
         }
     }
 
@@ -747,13 +654,13 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getReadConnection(ContactOptionFormBuiderTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getReadConnection(ContactOptionFormBuilderTableMap::DATABASE_NAME);
         }
 
         // We don't need to alter the object instance pool; we're just modifying this instance
         // already in the pool.
 
-        $dataFetcher = ChildContactOptionFormBuiderQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
+        $dataFetcher = ChildContactOptionFormBuilderQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
         $row = $dataFetcher->fetch();
         $dataFetcher->close();
         if (!$row) {
@@ -762,6 +669,8 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
         $this->hydrate($row, 0, true, $dataFetcher->getIndexType()); // rehydrate
 
         if ($deep) {  // also de-associate any related objects?
+
+            $this->collContactOptionFormBuilderI18ns = null;
 
         } // if (deep)
     }
@@ -772,8 +681,8 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      * @param      ConnectionInterface $con
      * @return void
      * @throws PropelException
-     * @see ContactOptionFormBuider::setDeleted()
-     * @see ContactOptionFormBuider::isDeleted()
+     * @see ContactOptionFormBuilder::setDeleted()
+     * @see ContactOptionFormBuilder::isDeleted()
      */
     public function delete(ConnectionInterface $con = null)
     {
@@ -782,12 +691,12 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(ContactOptionFormBuiderTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(ContactOptionFormBuilderTableMap::DATABASE_NAME);
         }
 
         $con->beginTransaction();
         try {
-            $deleteQuery = ChildContactOptionFormBuiderQuery::create()
+            $deleteQuery = ChildContactOptionFormBuilderQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
             if ($ret) {
@@ -824,7 +733,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(ContactOptionFormBuiderTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(ContactOptionFormBuilderTableMap::DATABASE_NAME);
         }
 
         $con->beginTransaction();
@@ -844,7 +753,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
                     $this->postUpdate($con);
                 }
                 $this->postSave($con);
-                ContactOptionFormBuiderTableMap::addInstanceToPool($this);
+                ContactOptionFormBuilderTableMap::addInstanceToPool($this);
             } else {
                 $affectedRows = 0;
             }
@@ -885,6 +794,23 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
                 $this->resetModified();
             }
 
+            if ($this->contactOptionFormBuilderI18nsScheduledForDeletion !== null) {
+                if (!$this->contactOptionFormBuilderI18nsScheduledForDeletion->isEmpty()) {
+                    \ContactOptionBuilder\Model\ContactOptionFormBuilderI18nQuery::create()
+                        ->filterByPrimaryKeys($this->contactOptionFormBuilderI18nsScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->contactOptionFormBuilderI18nsScheduledForDeletion = null;
+                }
+            }
+
+                if ($this->collContactOptionFormBuilderI18ns !== null) {
+            foreach ($this->collContactOptionFormBuilderI18ns as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
             $this->alreadyInSave = false;
 
         }
@@ -905,36 +831,27 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[ContactOptionFormBuiderTableMap::ID_COFB] = true;
+        $this->modifiedColumns[ContactOptionFormBuilderTableMap::ID_COFB] = true;
         if (null !== $this->id_cofb) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . ContactOptionFormBuiderTableMap::ID_COFB . ')');
+            throw new PropelException('Cannot insert a value for auto-increment primary key (' . ContactOptionFormBuilderTableMap::ID_COFB . ')');
         }
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::ID_COFB)) {
+        if ($this->isColumnModified(ContactOptionFormBuilderTableMap::ID_COFB)) {
             $modifiedColumns[':p' . $index++]  = 'ID_COFB';
         }
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::SUBJECT_COFB)) {
-            $modifiedColumns[':p' . $index++]  = 'SUBJECT_COFB';
-        }
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::TYPE_USER_COFB)) {
+        if ($this->isColumnModified(ContactOptionFormBuilderTableMap::TYPE_USER_COFB)) {
             $modifiedColumns[':p' . $index++]  = 'TYPE_USER_COFB';
         }
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::ORDER_OPT_COFB)) {
+        if ($this->isColumnModified(ContactOptionFormBuilderTableMap::ORDER_OPT_COFB)) {
             $modifiedColumns[':p' . $index++]  = 'ORDER_OPT_COFB';
         }
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::RAISON_SOCIALE_OPT_COFB)) {
+        if ($this->isColumnModified(ContactOptionFormBuilderTableMap::RAISON_SOCIALE_OPT_COFB)) {
             $modifiedColumns[':p' . $index++]  = 'RAISON_SOCIALE_OPT_COFB';
-        }
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::MESSAGE_COFB)) {
-            $modifiedColumns[':p' . $index++]  = 'MESSAGE_COFB';
-        }
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::EMAIL_TO_COFB)) {
-            $modifiedColumns[':p' . $index++]  = 'EMAIL_TO_COFB';
         }
 
         $sql = sprintf(
-            'INSERT INTO contact_option_form_buider (%s) VALUES (%s)',
+            'INSERT INTO contact_option_form_builder (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -946,9 +863,6 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
                     case 'ID_COFB':
                         $stmt->bindValue($identifier, $this->id_cofb, PDO::PARAM_INT);
                         break;
-                    case 'SUBJECT_COFB':
-                        $stmt->bindValue($identifier, $this->subject_cofb, PDO::PARAM_STR);
-                        break;
                     case 'TYPE_USER_COFB':
                         $stmt->bindValue($identifier, (int) $this->type_user_cofb, PDO::PARAM_INT);
                         break;
@@ -957,12 +871,6 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
                         break;
                     case 'RAISON_SOCIALE_OPT_COFB':
                         $stmt->bindValue($identifier, (int) $this->raison_sociale_opt_cofb, PDO::PARAM_INT);
-                        break;
-                    case 'MESSAGE_COFB':
-                        $stmt->bindValue($identifier, $this->message_cofb, PDO::PARAM_STR);
-                        break;
-                    case 'EMAIL_TO_COFB':
-                        $stmt->bindValue($identifier, $this->email_to_cofb, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -1010,7 +918,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      */
     public function getByName($name, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = ContactOptionFormBuiderTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = ContactOptionFormBuilderTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
         $field = $this->getByPosition($pos);
 
         return $field;
@@ -1030,22 +938,13 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
                 return $this->getIdCofb();
                 break;
             case 1:
-                return $this->getSubjectCofb();
-                break;
-            case 2:
                 return $this->getTypeUserCofb();
                 break;
-            case 3:
+            case 2:
                 return $this->getOrderOptCofb();
                 break;
-            case 4:
+            case 3:
                 return $this->getRaisonSocialeOptCofb();
-                break;
-            case 5:
-                return $this->getMessageCofb();
-                break;
-            case 6:
-                return $this->getEmailToCofb();
                 break;
             default:
                 return null;
@@ -1064,30 +963,33 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      *                    Defaults to TableMap::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
+    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
-        if (isset($alreadyDumpedObjects['ContactOptionFormBuider'][$this->getPrimaryKey()])) {
+        if (isset($alreadyDumpedObjects['ContactOptionFormBuilder'][$this->getPrimaryKey()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['ContactOptionFormBuider'][$this->getPrimaryKey()] = true;
-        $keys = ContactOptionFormBuiderTableMap::getFieldNames($keyType);
+        $alreadyDumpedObjects['ContactOptionFormBuilder'][$this->getPrimaryKey()] = true;
+        $keys = ContactOptionFormBuilderTableMap::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getIdCofb(),
-            $keys[1] => $this->getSubjectCofb(),
-            $keys[2] => $this->getTypeUserCofb(),
-            $keys[3] => $this->getOrderOptCofb(),
-            $keys[4] => $this->getRaisonSocialeOptCofb(),
-            $keys[5] => $this->getMessageCofb(),
-            $keys[6] => $this->getEmailToCofb(),
+            $keys[1] => $this->getTypeUserCofb(),
+            $keys[2] => $this->getOrderOptCofb(),
+            $keys[3] => $this->getRaisonSocialeOptCofb(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
             $result[$key] = $virtualColumn;
         }
 
+        if ($includeForeignObjects) {
+            if (null !== $this->collContactOptionFormBuilderI18ns) {
+                $result['ContactOptionFormBuilderI18ns'] = $this->collContactOptionFormBuilderI18ns->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+        }
 
         return $result;
     }
@@ -1105,7 +1007,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      */
     public function setByName($name, $value, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = ContactOptionFormBuiderTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = ContactOptionFormBuilderTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
 
         return $this->setByPosition($pos, $value);
     }
@@ -1125,22 +1027,13 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
                 $this->setIdCofb($value);
                 break;
             case 1:
-                $this->setSubjectCofb($value);
-                break;
-            case 2:
                 $this->setTypeUserCofb($value);
                 break;
-            case 3:
+            case 2:
                 $this->setOrderOptCofb($value);
                 break;
-            case 4:
+            case 3:
                 $this->setRaisonSocialeOptCofb($value);
-                break;
-            case 5:
-                $this->setMessageCofb($value);
-                break;
-            case 6:
-                $this->setEmailToCofb($value);
                 break;
         } // switch()
     }
@@ -1164,15 +1057,12 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      */
     public function fromArray($arr, $keyType = TableMap::TYPE_PHPNAME)
     {
-        $keys = ContactOptionFormBuiderTableMap::getFieldNames($keyType);
+        $keys = ContactOptionFormBuilderTableMap::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) $this->setIdCofb($arr[$keys[0]]);
-        if (array_key_exists($keys[1], $arr)) $this->setSubjectCofb($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setTypeUserCofb($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setOrderOptCofb($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setRaisonSocialeOptCofb($arr[$keys[4]]);
-        if (array_key_exists($keys[5], $arr)) $this->setMessageCofb($arr[$keys[5]]);
-        if (array_key_exists($keys[6], $arr)) $this->setEmailToCofb($arr[$keys[6]]);
+        if (array_key_exists($keys[1], $arr)) $this->setTypeUserCofb($arr[$keys[1]]);
+        if (array_key_exists($keys[2], $arr)) $this->setOrderOptCofb($arr[$keys[2]]);
+        if (array_key_exists($keys[3], $arr)) $this->setRaisonSocialeOptCofb($arr[$keys[3]]);
     }
 
     /**
@@ -1182,15 +1072,12 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      */
     public function buildCriteria()
     {
-        $criteria = new Criteria(ContactOptionFormBuiderTableMap::DATABASE_NAME);
+        $criteria = new Criteria(ContactOptionFormBuilderTableMap::DATABASE_NAME);
 
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::ID_COFB)) $criteria->add(ContactOptionFormBuiderTableMap::ID_COFB, $this->id_cofb);
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::SUBJECT_COFB)) $criteria->add(ContactOptionFormBuiderTableMap::SUBJECT_COFB, $this->subject_cofb);
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::TYPE_USER_COFB)) $criteria->add(ContactOptionFormBuiderTableMap::TYPE_USER_COFB, $this->type_user_cofb);
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::ORDER_OPT_COFB)) $criteria->add(ContactOptionFormBuiderTableMap::ORDER_OPT_COFB, $this->order_opt_cofb);
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::RAISON_SOCIALE_OPT_COFB)) $criteria->add(ContactOptionFormBuiderTableMap::RAISON_SOCIALE_OPT_COFB, $this->raison_sociale_opt_cofb);
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::MESSAGE_COFB)) $criteria->add(ContactOptionFormBuiderTableMap::MESSAGE_COFB, $this->message_cofb);
-        if ($this->isColumnModified(ContactOptionFormBuiderTableMap::EMAIL_TO_COFB)) $criteria->add(ContactOptionFormBuiderTableMap::EMAIL_TO_COFB, $this->email_to_cofb);
+        if ($this->isColumnModified(ContactOptionFormBuilderTableMap::ID_COFB)) $criteria->add(ContactOptionFormBuilderTableMap::ID_COFB, $this->id_cofb);
+        if ($this->isColumnModified(ContactOptionFormBuilderTableMap::TYPE_USER_COFB)) $criteria->add(ContactOptionFormBuilderTableMap::TYPE_USER_COFB, $this->type_user_cofb);
+        if ($this->isColumnModified(ContactOptionFormBuilderTableMap::ORDER_OPT_COFB)) $criteria->add(ContactOptionFormBuilderTableMap::ORDER_OPT_COFB, $this->order_opt_cofb);
+        if ($this->isColumnModified(ContactOptionFormBuilderTableMap::RAISON_SOCIALE_OPT_COFB)) $criteria->add(ContactOptionFormBuilderTableMap::RAISON_SOCIALE_OPT_COFB, $this->raison_sociale_opt_cofb);
 
         return $criteria;
     }
@@ -1205,8 +1092,8 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      */
     public function buildPkeyCriteria()
     {
-        $criteria = new Criteria(ContactOptionFormBuiderTableMap::DATABASE_NAME);
-        $criteria->add(ContactOptionFormBuiderTableMap::ID_COFB, $this->id_cofb);
+        $criteria = new Criteria(ContactOptionFormBuilderTableMap::DATABASE_NAME);
+        $criteria->add(ContactOptionFormBuilderTableMap::ID_COFB, $this->id_cofb);
 
         return $criteria;
     }
@@ -1247,19 +1134,30 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      * If desired, this method can also make copies of all associated (fkey referrers)
      * objects.
      *
-     * @param      object $copyObj An object of \ContactOptionBuilder\Model\ContactOptionFormBuider (or compatible) type.
+     * @param      object $copyObj An object of \ContactOptionBuilder\Model\ContactOptionFormBuilder (or compatible) type.
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
      * @param      boolean $makeNew Whether to reset autoincrement PKs and make the object new.
      * @throws PropelException
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
-        $copyObj->setSubjectCofb($this->getSubjectCofb());
         $copyObj->setTypeUserCofb($this->getTypeUserCofb());
         $copyObj->setOrderOptCofb($this->getOrderOptCofb());
         $copyObj->setRaisonSocialeOptCofb($this->getRaisonSocialeOptCofb());
-        $copyObj->setMessageCofb($this->getMessageCofb());
-        $copyObj->setEmailToCofb($this->getEmailToCofb());
+
+        if ($deepCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+
+            foreach ($this->getContactOptionFormBuilderI18ns() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addContactOptionFormBuilderI18n($relObj->copy($deepCopy));
+                }
+            }
+
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setIdCofb(NULL); // this is a auto-increment column, so set to default value
@@ -1275,7 +1173,7 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      * objects.
      *
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-     * @return                 \ContactOptionBuilder\Model\ContactOptionFormBuider Clone of current object.
+     * @return                 \ContactOptionBuilder\Model\ContactOptionFormBuilder Clone of current object.
      * @throws PropelException
      */
     public function copy($deepCopy = false)
@@ -1288,18 +1186,256 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
         return $copyObj;
     }
 
+
+    /**
+     * Initializes a collection based on the name of a relation.
+     * Avoids crafting an 'init[$relationName]s' method name
+     * that wouldn't work when StandardEnglishPluralizer is used.
+     *
+     * @param      string $relationName The name of the relation to initialize
+     * @return void
+     */
+    public function initRelation($relationName)
+    {
+        if ('ContactOptionFormBuilderI18n' == $relationName) {
+            return $this->initContactOptionFormBuilderI18ns();
+        }
+    }
+
+    /**
+     * Clears out the collContactOptionFormBuilderI18ns collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addContactOptionFormBuilderI18ns()
+     */
+    public function clearContactOptionFormBuilderI18ns()
+    {
+        $this->collContactOptionFormBuilderI18ns = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collContactOptionFormBuilderI18ns collection loaded partially.
+     */
+    public function resetPartialContactOptionFormBuilderI18ns($v = true)
+    {
+        $this->collContactOptionFormBuilderI18nsPartial = $v;
+    }
+
+    /**
+     * Initializes the collContactOptionFormBuilderI18ns collection.
+     *
+     * By default this just sets the collContactOptionFormBuilderI18ns collection to an empty array (like clearcollContactOptionFormBuilderI18ns());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initContactOptionFormBuilderI18ns($overrideExisting = true)
+    {
+        if (null !== $this->collContactOptionFormBuilderI18ns && !$overrideExisting) {
+            return;
+        }
+        $this->collContactOptionFormBuilderI18ns = new ObjectCollection();
+        $this->collContactOptionFormBuilderI18ns->setModel('\ContactOptionBuilder\Model\ContactOptionFormBuilderI18n');
+    }
+
+    /**
+     * Gets an array of ChildContactOptionFormBuilderI18n objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildContactOptionFormBuilder is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return Collection|ChildContactOptionFormBuilderI18n[] List of ChildContactOptionFormBuilderI18n objects
+     * @throws PropelException
+     */
+    public function getContactOptionFormBuilderI18ns($criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collContactOptionFormBuilderI18nsPartial && !$this->isNew();
+        if (null === $this->collContactOptionFormBuilderI18ns || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collContactOptionFormBuilderI18ns) {
+                // return empty collection
+                $this->initContactOptionFormBuilderI18ns();
+            } else {
+                $collContactOptionFormBuilderI18ns = ChildContactOptionFormBuilderI18nQuery::create(null, $criteria)
+                    ->filterByContactOptionFormBuilder($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collContactOptionFormBuilderI18nsPartial && count($collContactOptionFormBuilderI18ns)) {
+                        $this->initContactOptionFormBuilderI18ns(false);
+
+                        foreach ($collContactOptionFormBuilderI18ns as $obj) {
+                            if (false == $this->collContactOptionFormBuilderI18ns->contains($obj)) {
+                                $this->collContactOptionFormBuilderI18ns->append($obj);
+                            }
+                        }
+
+                        $this->collContactOptionFormBuilderI18nsPartial = true;
+                    }
+
+                    reset($collContactOptionFormBuilderI18ns);
+
+                    return $collContactOptionFormBuilderI18ns;
+                }
+
+                if ($partial && $this->collContactOptionFormBuilderI18ns) {
+                    foreach ($this->collContactOptionFormBuilderI18ns as $obj) {
+                        if ($obj->isNew()) {
+                            $collContactOptionFormBuilderI18ns[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collContactOptionFormBuilderI18ns = $collContactOptionFormBuilderI18ns;
+                $this->collContactOptionFormBuilderI18nsPartial = false;
+            }
+        }
+
+        return $this->collContactOptionFormBuilderI18ns;
+    }
+
+    /**
+     * Sets a collection of ContactOptionFormBuilderI18n objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $contactOptionFormBuilderI18ns A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return   ChildContactOptionFormBuilder The current object (for fluent API support)
+     */
+    public function setContactOptionFormBuilderI18ns(Collection $contactOptionFormBuilderI18ns, ConnectionInterface $con = null)
+    {
+        $contactOptionFormBuilderI18nsToDelete = $this->getContactOptionFormBuilderI18ns(new Criteria(), $con)->diff($contactOptionFormBuilderI18ns);
+
+
+        //since at least one column in the foreign key is at the same time a PK
+        //we can not just set a PK to NULL in the lines below. We have to store
+        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
+        $this->contactOptionFormBuilderI18nsScheduledForDeletion = clone $contactOptionFormBuilderI18nsToDelete;
+
+        foreach ($contactOptionFormBuilderI18nsToDelete as $contactOptionFormBuilderI18nRemoved) {
+            $contactOptionFormBuilderI18nRemoved->setContactOptionFormBuilder(null);
+        }
+
+        $this->collContactOptionFormBuilderI18ns = null;
+        foreach ($contactOptionFormBuilderI18ns as $contactOptionFormBuilderI18n) {
+            $this->addContactOptionFormBuilderI18n($contactOptionFormBuilderI18n);
+        }
+
+        $this->collContactOptionFormBuilderI18ns = $contactOptionFormBuilderI18ns;
+        $this->collContactOptionFormBuilderI18nsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related ContactOptionFormBuilderI18n objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related ContactOptionFormBuilderI18n objects.
+     * @throws PropelException
+     */
+    public function countContactOptionFormBuilderI18ns(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collContactOptionFormBuilderI18nsPartial && !$this->isNew();
+        if (null === $this->collContactOptionFormBuilderI18ns || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collContactOptionFormBuilderI18ns) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getContactOptionFormBuilderI18ns());
+            }
+
+            $query = ChildContactOptionFormBuilderI18nQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByContactOptionFormBuilder($this)
+                ->count($con);
+        }
+
+        return count($this->collContactOptionFormBuilderI18ns);
+    }
+
+    /**
+     * Method called to associate a ChildContactOptionFormBuilderI18n object to this object
+     * through the ChildContactOptionFormBuilderI18n foreign key attribute.
+     *
+     * @param    ChildContactOptionFormBuilderI18n $l ChildContactOptionFormBuilderI18n
+     * @return   \ContactOptionBuilder\Model\ContactOptionFormBuilder The current object (for fluent API support)
+     */
+    public function addContactOptionFormBuilderI18n(ChildContactOptionFormBuilderI18n $l)
+    {
+        if ($l && $locale = $l->getLocale()) {
+            $this->setLocale($locale);
+            $this->currentTranslations[$locale] = $l;
+        }
+        if ($this->collContactOptionFormBuilderI18ns === null) {
+            $this->initContactOptionFormBuilderI18ns();
+            $this->collContactOptionFormBuilderI18nsPartial = true;
+        }
+
+        if (!in_array($l, $this->collContactOptionFormBuilderI18ns->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
+            $this->doAddContactOptionFormBuilderI18n($l);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ContactOptionFormBuilderI18n $contactOptionFormBuilderI18n The contactOptionFormBuilderI18n object to add.
+     */
+    protected function doAddContactOptionFormBuilderI18n($contactOptionFormBuilderI18n)
+    {
+        $this->collContactOptionFormBuilderI18ns[]= $contactOptionFormBuilderI18n;
+        $contactOptionFormBuilderI18n->setContactOptionFormBuilder($this);
+    }
+
+    /**
+     * @param  ContactOptionFormBuilderI18n $contactOptionFormBuilderI18n The contactOptionFormBuilderI18n object to remove.
+     * @return ChildContactOptionFormBuilder The current object (for fluent API support)
+     */
+    public function removeContactOptionFormBuilderI18n($contactOptionFormBuilderI18n)
+    {
+        if ($this->getContactOptionFormBuilderI18ns()->contains($contactOptionFormBuilderI18n)) {
+            $this->collContactOptionFormBuilderI18ns->remove($this->collContactOptionFormBuilderI18ns->search($contactOptionFormBuilderI18n));
+            if (null === $this->contactOptionFormBuilderI18nsScheduledForDeletion) {
+                $this->contactOptionFormBuilderI18nsScheduledForDeletion = clone $this->collContactOptionFormBuilderI18ns;
+                $this->contactOptionFormBuilderI18nsScheduledForDeletion->clear();
+            }
+            $this->contactOptionFormBuilderI18nsScheduledForDeletion[]= clone $contactOptionFormBuilderI18n;
+            $contactOptionFormBuilderI18n->setContactOptionFormBuilder(null);
+        }
+
+        return $this;
+    }
+
     /**
      * Clears the current object and sets all attributes to their default values
      */
     public function clear()
     {
         $this->id_cofb = null;
-        $this->subject_cofb = null;
         $this->type_user_cofb = null;
         $this->order_opt_cofb = null;
         $this->raison_sociale_opt_cofb = null;
-        $this->message_cofb = null;
-        $this->email_to_cofb = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->applyDefaultValues();
@@ -1320,8 +1456,18 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collContactOptionFormBuilderI18ns) {
+                foreach ($this->collContactOptionFormBuilderI18ns as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
+        // i18n behavior
+        $this->currentLocale = 'en_US';
+        $this->currentTranslations = null;
+
+        $this->collContactOptionFormBuilderI18ns = null;
     }
 
     /**
@@ -1331,7 +1477,178 @@ abstract class ContactOptionFormBuider implements ActiveRecordInterface
      */
     public function __toString()
     {
-        return (string) $this->exportTo(ContactOptionFormBuiderTableMap::DEFAULT_STRING_FORMAT);
+        return (string) $this->exportTo(ContactOptionFormBuilderTableMap::DEFAULT_STRING_FORMAT);
+    }
+
+    // i18n behavior
+
+    /**
+     * Sets the locale for translations
+     *
+     * @param     string $locale Locale to use for the translation, e.g. 'fr_FR'
+     *
+     * @return    ChildContactOptionFormBuilder The current object (for fluent API support)
+     */
+    public function setLocale($locale = 'en_US')
+    {
+        $this->currentLocale = $locale;
+
+        return $this;
+    }
+
+    /**
+     * Gets the locale for translations
+     *
+     * @return    string $locale Locale to use for the translation, e.g. 'fr_FR'
+     */
+    public function getLocale()
+    {
+        return $this->currentLocale;
+    }
+
+    /**
+     * Returns the current translation for a given locale
+     *
+     * @param     string $locale Locale to use for the translation, e.g. 'fr_FR'
+     * @param     ConnectionInterface $con an optional connection object
+     *
+     * @return ChildContactOptionFormBuilderI18n */
+    public function getTranslation($locale = 'en_US', ConnectionInterface $con = null)
+    {
+        if (!isset($this->currentTranslations[$locale])) {
+            if (null !== $this->collContactOptionFormBuilderI18ns) {
+                foreach ($this->collContactOptionFormBuilderI18ns as $translation) {
+                    if ($translation->getLocale() == $locale) {
+                        $this->currentTranslations[$locale] = $translation;
+
+                        return $translation;
+                    }
+                }
+            }
+            if ($this->isNew()) {
+                $translation = new ChildContactOptionFormBuilderI18n();
+                $translation->setLocale($locale);
+            } else {
+                $translation = ChildContactOptionFormBuilderI18nQuery::create()
+                    ->filterByPrimaryKey(array($this->getPrimaryKey(), $locale))
+                    ->findOneOrCreate($con);
+                $this->currentTranslations[$locale] = $translation;
+            }
+            $this->addContactOptionFormBuilderI18n($translation);
+        }
+
+        return $this->currentTranslations[$locale];
+    }
+
+    /**
+     * Remove the translation for a given locale
+     *
+     * @param     string $locale Locale to use for the translation, e.g. 'fr_FR'
+     * @param     ConnectionInterface $con an optional connection object
+     *
+     * @return    ChildContactOptionFormBuilder The current object (for fluent API support)
+     */
+    public function removeTranslation($locale = 'en_US', ConnectionInterface $con = null)
+    {
+        if (!$this->isNew()) {
+            ChildContactOptionFormBuilderI18nQuery::create()
+                ->filterByPrimaryKey(array($this->getPrimaryKey(), $locale))
+                ->delete($con);
+        }
+        if (isset($this->currentTranslations[$locale])) {
+            unset($this->currentTranslations[$locale]);
+        }
+        foreach ($this->collContactOptionFormBuilderI18ns as $key => $translation) {
+            if ($translation->getLocale() == $locale) {
+                unset($this->collContactOptionFormBuilderI18ns[$key]);
+                break;
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns the current translation
+     *
+     * @param     ConnectionInterface $con an optional connection object
+     *
+     * @return ChildContactOptionFormBuilderI18n */
+    public function getCurrentTranslation(ConnectionInterface $con = null)
+    {
+        return $this->getTranslation($this->getLocale(), $con);
+    }
+
+
+        /**
+         * Get the [subject_cofb] column value.
+         *
+         * @return   string
+         */
+        public function getSubjectCofb()
+        {
+        return $this->getCurrentTranslation()->getSubjectCofb();
+    }
+
+
+        /**
+         * Set the value of [subject_cofb] column.
+         *
+         * @param      string $v new value
+         * @return   \ContactOptionBuilder\Model\ContactOptionFormBuilderI18n The current object (for fluent API support)
+         */
+        public function setSubjectCofb($v)
+        {    $this->getCurrentTranslation()->setSubjectCofb($v);
+
+        return $this;
+    }
+
+
+        /**
+         * Get the [message_cofb] column value.
+         *
+         * @return   string
+         */
+        public function getMessageCofb()
+        {
+        return $this->getCurrentTranslation()->getMessageCofb();
+    }
+
+
+        /**
+         * Set the value of [message_cofb] column.
+         *
+         * @param      string $v new value
+         * @return   \ContactOptionBuilder\Model\ContactOptionFormBuilderI18n The current object (for fluent API support)
+         */
+        public function setMessageCofb($v)
+        {    $this->getCurrentTranslation()->setMessageCofb($v);
+
+        return $this;
+    }
+
+
+        /**
+         * Get the [email_to_cofb] column value.
+         *
+         * @return   string
+         */
+        public function getEmailToCofb()
+        {
+        return $this->getCurrentTranslation()->getEmailToCofb();
+    }
+
+
+        /**
+         * Set the value of [email_to_cofb] column.
+         *
+         * @param      string $v new value
+         * @return   \ContactOptionBuilder\Model\ContactOptionFormBuilderI18n The current object (for fluent API support)
+         */
+        public function setEmailToCofb($v)
+        {    $this->getCurrentTranslation()->setEmailToCofb($v);
+
+        return $this;
     }
 
     /**

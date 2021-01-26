@@ -13,6 +13,13 @@
                 <form method="POST" id="cob-form" action="{url path="/admin/module/contactoptionbuilder/addsubject"}" {form_enctype} class="clearfix">
                     <div class="row general-block-decorator">
                         <div class="col-md-12">
+                            {include
+                            hide_save_buttons = true
+                            hide_save_and_close_button = true
+                            file = "includes/inner-form-toolbar.html"
+                            page_url   = {url path='/admin/module/contactoptionbuilder'}
+                            }
+
                             {form_hidden_fields}
 
                             {if $form_error}<div class="alert alert-danger">{$form_error_message}</div>{/if}
@@ -79,7 +86,7 @@
             </tr>
             </thead>
             <tbody>
-            {loop type="contactoptionbuilder.contact.option.loop" name="contactoptionbuilder.contact.option.loop" }
+            {loop type="contactoptionbuilder.contact.option.loop" name="contactoptionbuilder.contact.option.loop" lang_id={lang attr='id'}}
                 <tr>
                     <td>
                         {$ID_COB}
@@ -115,6 +122,7 @@
                         {$MESSAGE_OPT_COB }
                     </td>
                     <td>
+                        <a class="btn btn-default btn-default" href="{url path="/admin/module/contactoptionbuilder/edit/"}{$ID_COB}" title="{intl l="ACTION_EDIT_SUBJECT"}"><span class="glyphicon glyphicon-edit"></span></a>
                         <a class="btn btn-default btn-danger" href="{url path="/admin/module/contactoptionbuilder/delsubject/"}{$ID_COB}" title="{intl l="ACTION_DELETE_SUBJECT"}"><span class="glyphicon glyphicon-remove-sign"></span></a>
                     </td>
                 </tr>

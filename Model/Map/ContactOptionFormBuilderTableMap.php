@@ -2,8 +2,8 @@
 
 namespace ContactOptionBuilder\Model\Map;
 
-use ContactOptionBuilder\Model\ContactOptionFormBuider;
-use ContactOptionBuilder\Model\ContactOptionFormBuiderQuery;
+use ContactOptionBuilder\Model\ContactOptionFormBuilder;
+use ContactOptionBuilder\Model\ContactOptionFormBuilderQuery;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\InstancePoolTrait;
@@ -16,7 +16,7 @@ use Propel\Runtime\Map\TableMapTrait;
 
 
 /**
- * This class defines the structure of the 'contact_option_form_buider' table.
+ * This class defines the structure of the 'contact_option_form_builder' table.
  *
  *
  *
@@ -26,14 +26,14 @@ use Propel\Runtime\Map\TableMapTrait;
  * (i.e. if it's a text column type).
  *
  */
-class ContactOptionFormBuiderTableMap extends TableMap
+class ContactOptionFormBuilderTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'ContactOptionBuilder.Model.Map.ContactOptionFormBuiderTableMap';
+    const CLASS_NAME = 'ContactOptionBuilder.Model.Map.ContactOptionFormBuilderTableMap';
 
     /**
      * The default database name for this class
@@ -43,22 +43,22 @@ class ContactOptionFormBuiderTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'contact_option_form_buider';
+    const TABLE_NAME = 'contact_option_form_builder';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\ContactOptionBuilder\\Model\\ContactOptionFormBuider';
+    const OM_CLASS = '\\ContactOptionBuilder\\Model\\ContactOptionFormBuilder';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'ContactOptionBuilder.Model.ContactOptionFormBuider';
+    const CLASS_DEFAULT = 'ContactOptionBuilder.Model.ContactOptionFormBuilder';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 7;
+    const NUM_COLUMNS = 4;
 
     /**
      * The number of lazy-loaded columns
@@ -68,47 +68,41 @@ class ContactOptionFormBuiderTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 7;
+    const NUM_HYDRATE_COLUMNS = 4;
 
     /**
      * the column name for the ID_COFB field
      */
-    const ID_COFB = 'contact_option_form_buider.ID_COFB';
-
-    /**
-     * the column name for the SUBJECT_COFB field
-     */
-    const SUBJECT_COFB = 'contact_option_form_buider.SUBJECT_COFB';
+    const ID_COFB = 'contact_option_form_builder.ID_COFB';
 
     /**
      * the column name for the TYPE_USER_COFB field
      */
-    const TYPE_USER_COFB = 'contact_option_form_buider.TYPE_USER_COFB';
+    const TYPE_USER_COFB = 'contact_option_form_builder.TYPE_USER_COFB';
 
     /**
      * the column name for the ORDER_OPT_COFB field
      */
-    const ORDER_OPT_COFB = 'contact_option_form_buider.ORDER_OPT_COFB';
+    const ORDER_OPT_COFB = 'contact_option_form_builder.ORDER_OPT_COFB';
 
     /**
      * the column name for the RAISON_SOCIALE_OPT_COFB field
      */
-    const RAISON_SOCIALE_OPT_COFB = 'contact_option_form_buider.RAISON_SOCIALE_OPT_COFB';
-
-    /**
-     * the column name for the MESSAGE_COFB field
-     */
-    const MESSAGE_COFB = 'contact_option_form_buider.MESSAGE_COFB';
-
-    /**
-     * the column name for the EMAIL_TO_COFB field
-     */
-    const EMAIL_TO_COFB = 'contact_option_form_buider.EMAIL_TO_COFB';
+    const RAISON_SOCIALE_OPT_COFB = 'contact_option_form_builder.RAISON_SOCIALE_OPT_COFB';
 
     /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
+
+    // i18n behavior
+
+    /**
+     * The default locale to use for translations.
+     *
+     * @var string
+     */
+    const DEFAULT_LOCALE = 'en_US';
 
     /**
      * holds an array of fieldnames
@@ -117,12 +111,12 @@ class ContactOptionFormBuiderTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('IdCofb', 'SubjectCofb', 'TypeUserCofb', 'OrderOptCofb', 'RaisonSocialeOptCofb', 'MessageCofb', 'EmailToCofb', ),
-        self::TYPE_STUDLYPHPNAME => array('idCofb', 'subjectCofb', 'typeUserCofb', 'orderOptCofb', 'raisonSocialeOptCofb', 'messageCofb', 'emailToCofb', ),
-        self::TYPE_COLNAME       => array(ContactOptionFormBuiderTableMap::ID_COFB, ContactOptionFormBuiderTableMap::SUBJECT_COFB, ContactOptionFormBuiderTableMap::TYPE_USER_COFB, ContactOptionFormBuiderTableMap::ORDER_OPT_COFB, ContactOptionFormBuiderTableMap::RAISON_SOCIALE_OPT_COFB, ContactOptionFormBuiderTableMap::MESSAGE_COFB, ContactOptionFormBuiderTableMap::EMAIL_TO_COFB, ),
-        self::TYPE_RAW_COLNAME   => array('ID_COFB', 'SUBJECT_COFB', 'TYPE_USER_COFB', 'ORDER_OPT_COFB', 'RAISON_SOCIALE_OPT_COFB', 'MESSAGE_COFB', 'EMAIL_TO_COFB', ),
-        self::TYPE_FIELDNAME     => array('id_cofb', 'subject_cofb', 'type_user_cofb', 'order_opt_cofb', 'raison_sociale_opt_cofb', 'message_cofb', 'email_to_cofb', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
+        self::TYPE_PHPNAME       => array('IdCofb', 'TypeUserCofb', 'OrderOptCofb', 'RaisonSocialeOptCofb', ),
+        self::TYPE_STUDLYPHPNAME => array('idCofb', 'typeUserCofb', 'orderOptCofb', 'raisonSocialeOptCofb', ),
+        self::TYPE_COLNAME       => array(ContactOptionFormBuilderTableMap::ID_COFB, ContactOptionFormBuilderTableMap::TYPE_USER_COFB, ContactOptionFormBuilderTableMap::ORDER_OPT_COFB, ContactOptionFormBuilderTableMap::RAISON_SOCIALE_OPT_COFB, ),
+        self::TYPE_RAW_COLNAME   => array('ID_COFB', 'TYPE_USER_COFB', 'ORDER_OPT_COFB', 'RAISON_SOCIALE_OPT_COFB', ),
+        self::TYPE_FIELDNAME     => array('id_cofb', 'type_user_cofb', 'order_opt_cofb', 'raison_sociale_opt_cofb', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
     /**
@@ -132,12 +126,12 @@ class ContactOptionFormBuiderTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('IdCofb' => 0, 'SubjectCofb' => 1, 'TypeUserCofb' => 2, 'OrderOptCofb' => 3, 'RaisonSocialeOptCofb' => 4, 'MessageCofb' => 5, 'EmailToCofb' => 6, ),
-        self::TYPE_STUDLYPHPNAME => array('idCofb' => 0, 'subjectCofb' => 1, 'typeUserCofb' => 2, 'orderOptCofb' => 3, 'raisonSocialeOptCofb' => 4, 'messageCofb' => 5, 'emailToCofb' => 6, ),
-        self::TYPE_COLNAME       => array(ContactOptionFormBuiderTableMap::ID_COFB => 0, ContactOptionFormBuiderTableMap::SUBJECT_COFB => 1, ContactOptionFormBuiderTableMap::TYPE_USER_COFB => 2, ContactOptionFormBuiderTableMap::ORDER_OPT_COFB => 3, ContactOptionFormBuiderTableMap::RAISON_SOCIALE_OPT_COFB => 4, ContactOptionFormBuiderTableMap::MESSAGE_COFB => 5, ContactOptionFormBuiderTableMap::EMAIL_TO_COFB => 6, ),
-        self::TYPE_RAW_COLNAME   => array('ID_COFB' => 0, 'SUBJECT_COFB' => 1, 'TYPE_USER_COFB' => 2, 'ORDER_OPT_COFB' => 3, 'RAISON_SOCIALE_OPT_COFB' => 4, 'MESSAGE_COFB' => 5, 'EMAIL_TO_COFB' => 6, ),
-        self::TYPE_FIELDNAME     => array('id_cofb' => 0, 'subject_cofb' => 1, 'type_user_cofb' => 2, 'order_opt_cofb' => 3, 'raison_sociale_opt_cofb' => 4, 'message_cofb' => 5, 'email_to_cofb' => 6, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
+        self::TYPE_PHPNAME       => array('IdCofb' => 0, 'TypeUserCofb' => 1, 'OrderOptCofb' => 2, 'RaisonSocialeOptCofb' => 3, ),
+        self::TYPE_STUDLYPHPNAME => array('idCofb' => 0, 'typeUserCofb' => 1, 'orderOptCofb' => 2, 'raisonSocialeOptCofb' => 3, ),
+        self::TYPE_COLNAME       => array(ContactOptionFormBuilderTableMap::ID_COFB => 0, ContactOptionFormBuilderTableMap::TYPE_USER_COFB => 1, ContactOptionFormBuilderTableMap::ORDER_OPT_COFB => 2, ContactOptionFormBuilderTableMap::RAISON_SOCIALE_OPT_COFB => 3, ),
+        self::TYPE_RAW_COLNAME   => array('ID_COFB' => 0, 'TYPE_USER_COFB' => 1, 'ORDER_OPT_COFB' => 2, 'RAISON_SOCIALE_OPT_COFB' => 3, ),
+        self::TYPE_FIELDNAME     => array('id_cofb' => 0, 'type_user_cofb' => 1, 'order_opt_cofb' => 2, 'raison_sociale_opt_cofb' => 3, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
     /**
@@ -150,19 +144,16 @@ class ContactOptionFormBuiderTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('contact_option_form_buider');
-        $this->setPhpName('ContactOptionFormBuider');
-        $this->setClassName('\\ContactOptionBuilder\\Model\\ContactOptionFormBuider');
+        $this->setName('contact_option_form_builder');
+        $this->setPhpName('ContactOptionFormBuilder');
+        $this->setClassName('\\ContactOptionBuilder\\Model\\ContactOptionFormBuilder');
         $this->setPackage('ContactOptionBuilder.Model');
         $this->setUseIdGenerator(true);
         // columns
         $this->addPrimaryKey('ID_COFB', 'IdCofb', 'INTEGER', true, null, null);
-        $this->addColumn('SUBJECT_COFB', 'SubjectCofb', 'VARCHAR', true, 78, null);
         $this->addColumn('TYPE_USER_COFB', 'TypeUserCofb', 'BOOLEAN', false, 1, false);
         $this->addColumn('ORDER_OPT_COFB', 'OrderOptCofb', 'BOOLEAN', false, 1, false);
         $this->addColumn('RAISON_SOCIALE_OPT_COFB', 'RaisonSocialeOptCofb', 'BOOLEAN', false, 1, false);
-        $this->addColumn('MESSAGE_COFB', 'MessageCofb', 'VARCHAR', false, 500, null);
-        $this->addColumn('EMAIL_TO_COFB', 'EmailToCofb', 'VARCHAR', true, 255, null);
     } // initialize()
 
     /**
@@ -170,7 +161,30 @@ class ContactOptionFormBuiderTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('ContactOptionFormBuilderI18n', '\\ContactOptionBuilder\\Model\\ContactOptionFormBuilderI18n', RelationMap::ONE_TO_MANY, array('id_cofb' => 'id_cofb', ), 'CASCADE', null, 'ContactOptionFormBuilderI18ns');
     } // buildRelations()
+
+    /**
+     *
+     * Gets the list of behaviors registered for this table
+     *
+     * @return array Associative array (name => parameters) of behaviors
+     */
+    public function getBehaviors()
+    {
+        return array(
+            'i18n' => array('i18n_table' => '%TABLE%_i18n', 'i18n_phpname' => '%PHPNAME%I18n', 'i18n_columns' => 'subject_cofb, message_cofb, email_to_cofb', 'locale_column' => 'locale', 'locale_length' => '5', 'default_locale' => '', 'locale_alias' => '', ),
+        );
+    } // getBehaviors()
+    /**
+     * Method to invalidate the instance pool of all tables related to contact_option_form_builder     * by a foreign key with ON DELETE CASCADE
+     */
+    public static function clearRelatedInstancePool()
+    {
+        // Invalidate objects in ".$this->getClassNameFromBuilder($joinedTableTableMapBuilder)." instance pool,
+        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+                ContactOptionFormBuilderI18nTableMap::clearInstancePool();
+            }
 
     /**
      * Retrieves a string version of the primary key from the DB resultset row that can be used to uniquely identify a row in this table.
@@ -228,7 +242,7 @@ class ContactOptionFormBuiderTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? ContactOptionFormBuiderTableMap::CLASS_DEFAULT : ContactOptionFormBuiderTableMap::OM_CLASS;
+        return $withPrefix ? ContactOptionFormBuilderTableMap::CLASS_DEFAULT : ContactOptionFormBuilderTableMap::OM_CLASS;
     }
 
     /**
@@ -242,21 +256,21 @@ class ContactOptionFormBuiderTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *         rethrown wrapped into a PropelException.
-     * @return array (ContactOptionFormBuider object, last column rank)
+     * @return array (ContactOptionFormBuilder object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = ContactOptionFormBuiderTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = ContactOptionFormBuiderTableMap::getInstanceFromPool($key))) {
+        $key = ContactOptionFormBuilderTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = ContactOptionFormBuilderTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + ContactOptionFormBuiderTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + ContactOptionFormBuilderTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = ContactOptionFormBuiderTableMap::OM_CLASS;
+            $cls = ContactOptionFormBuilderTableMap::OM_CLASS;
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            ContactOptionFormBuiderTableMap::addInstanceToPool($obj, $key);
+            ContactOptionFormBuilderTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -279,8 +293,8 @@ class ContactOptionFormBuiderTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = ContactOptionFormBuiderTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = ContactOptionFormBuiderTableMap::getInstanceFromPool($key))) {
+            $key = ContactOptionFormBuilderTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = ContactOptionFormBuilderTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
@@ -289,7 +303,7 @@ class ContactOptionFormBuiderTableMap extends TableMap
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                ContactOptionFormBuiderTableMap::addInstanceToPool($obj, $key);
+                ContactOptionFormBuilderTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -310,21 +324,15 @@ class ContactOptionFormBuiderTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(ContactOptionFormBuiderTableMap::ID_COFB);
-            $criteria->addSelectColumn(ContactOptionFormBuiderTableMap::SUBJECT_COFB);
-            $criteria->addSelectColumn(ContactOptionFormBuiderTableMap::TYPE_USER_COFB);
-            $criteria->addSelectColumn(ContactOptionFormBuiderTableMap::ORDER_OPT_COFB);
-            $criteria->addSelectColumn(ContactOptionFormBuiderTableMap::RAISON_SOCIALE_OPT_COFB);
-            $criteria->addSelectColumn(ContactOptionFormBuiderTableMap::MESSAGE_COFB);
-            $criteria->addSelectColumn(ContactOptionFormBuiderTableMap::EMAIL_TO_COFB);
+            $criteria->addSelectColumn(ContactOptionFormBuilderTableMap::ID_COFB);
+            $criteria->addSelectColumn(ContactOptionFormBuilderTableMap::TYPE_USER_COFB);
+            $criteria->addSelectColumn(ContactOptionFormBuilderTableMap::ORDER_OPT_COFB);
+            $criteria->addSelectColumn(ContactOptionFormBuilderTableMap::RAISON_SOCIALE_OPT_COFB);
         } else {
             $criteria->addSelectColumn($alias . '.ID_COFB');
-            $criteria->addSelectColumn($alias . '.SUBJECT_COFB');
             $criteria->addSelectColumn($alias . '.TYPE_USER_COFB');
             $criteria->addSelectColumn($alias . '.ORDER_OPT_COFB');
             $criteria->addSelectColumn($alias . '.RAISON_SOCIALE_OPT_COFB');
-            $criteria->addSelectColumn($alias . '.MESSAGE_COFB');
-            $criteria->addSelectColumn($alias . '.EMAIL_TO_COFB');
         }
     }
 
@@ -337,7 +345,7 @@ class ContactOptionFormBuiderTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(ContactOptionFormBuiderTableMap::DATABASE_NAME)->getTable(ContactOptionFormBuiderTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(ContactOptionFormBuilderTableMap::DATABASE_NAME)->getTable(ContactOptionFormBuilderTableMap::TABLE_NAME);
     }
 
     /**
@@ -345,16 +353,16 @@ class ContactOptionFormBuiderTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-      $dbMap = Propel::getServiceContainer()->getDatabaseMap(ContactOptionFormBuiderTableMap::DATABASE_NAME);
-      if (!$dbMap->hasTable(ContactOptionFormBuiderTableMap::TABLE_NAME)) {
-        $dbMap->addTableObject(new ContactOptionFormBuiderTableMap());
+      $dbMap = Propel::getServiceContainer()->getDatabaseMap(ContactOptionFormBuilderTableMap::DATABASE_NAME);
+      if (!$dbMap->hasTable(ContactOptionFormBuilderTableMap::TABLE_NAME)) {
+        $dbMap->addTableObject(new ContactOptionFormBuilderTableMap());
       }
     }
 
     /**
-     * Performs a DELETE on the database, given a ContactOptionFormBuider or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a ContactOptionFormBuilder or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or ContactOptionFormBuider object or primary key or array of primary keys
+     * @param mixed               $values Criteria or ContactOptionFormBuilder object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -365,25 +373,25 @@ class ContactOptionFormBuiderTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(ContactOptionFormBuiderTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(ContactOptionFormBuilderTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \ContactOptionBuilder\Model\ContactOptionFormBuider) { // it's a model object
+        } elseif ($values instanceof \ContactOptionBuilder\Model\ContactOptionFormBuilder) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(ContactOptionFormBuiderTableMap::DATABASE_NAME);
-            $criteria->add(ContactOptionFormBuiderTableMap::ID_COFB, (array) $values, Criteria::IN);
+            $criteria = new Criteria(ContactOptionFormBuilderTableMap::DATABASE_NAME);
+            $criteria->add(ContactOptionFormBuilderTableMap::ID_COFB, (array) $values, Criteria::IN);
         }
 
-        $query = ContactOptionFormBuiderQuery::create()->mergeWith($criteria);
+        $query = ContactOptionFormBuilderQuery::create()->mergeWith($criteria);
 
-        if ($values instanceof Criteria) { ContactOptionFormBuiderTableMap::clearInstancePool();
+        if ($values instanceof Criteria) { ContactOptionFormBuilderTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
-            foreach ((array) $values as $singleval) { ContactOptionFormBuiderTableMap::removeInstanceFromPool($singleval);
+            foreach ((array) $values as $singleval) { ContactOptionFormBuilderTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -391,20 +399,20 @@ class ContactOptionFormBuiderTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the contact_option_form_buider table.
+     * Deletes all rows from the contact_option_form_builder table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return ContactOptionFormBuiderQuery::create()->doDeleteAll($con);
+        return ContactOptionFormBuilderQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a ContactOptionFormBuider or Criteria object.
+     * Performs an INSERT on the database, given a ContactOptionFormBuilder or Criteria object.
      *
-     * @param mixed               $criteria Criteria or ContactOptionFormBuider object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or ContactOptionFormBuilder object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -413,22 +421,22 @@ class ContactOptionFormBuiderTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(ContactOptionFormBuiderTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(ContactOptionFormBuilderTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from ContactOptionFormBuider object
+            $criteria = $criteria->buildCriteria(); // build Criteria from ContactOptionFormBuilder object
         }
 
-        if ($criteria->containsKey(ContactOptionFormBuiderTableMap::ID_COFB) && $criteria->keyContainsValue(ContactOptionFormBuiderTableMap::ID_COFB) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.ContactOptionFormBuiderTableMap::ID_COFB.')');
+        if ($criteria->containsKey(ContactOptionFormBuilderTableMap::ID_COFB) && $criteria->keyContainsValue(ContactOptionFormBuilderTableMap::ID_COFB) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.ContactOptionFormBuilderTableMap::ID_COFB.')');
         }
 
 
         // Set the correct dbName
-        $query = ContactOptionFormBuiderQuery::create()->mergeWith($criteria);
+        $query = ContactOptionFormBuilderQuery::create()->mergeWith($criteria);
 
         try {
             // use transaction because $criteria could contain info
@@ -444,7 +452,7 @@ class ContactOptionFormBuiderTableMap extends TableMap
         return $pk;
     }
 
-} // ContactOptionFormBuiderTableMap
+} // ContactOptionFormBuilderTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-ContactOptionFormBuiderTableMap::buildTableMap();
+ContactOptionFormBuilderTableMap::buildTableMap();

@@ -12,6 +12,14 @@
         <default key="_controller">ContactOptionBuilder\Controller\AdminController::delSubjectAction</default>
     </route>
 
+    <route id="contactoptionbuilder.edit.subject.root" path="/admin/module/contactoptionbuilder/edit/{idSubject}">
+        <default key="_controller">ContactOptionBuilder\Controller\AdminController::showEditPageAction</default>
+    </route>
+
+    <route id="contactoptionbuilder.save.subject.root" path="/admin/module/contactoptionbuilder/savesubject/{idSubject}" methods="POST">
+        <default key="_controller">ContactOptionBuilder\Controller\AdminController::saveSubjectAction</default>
+    </route>
+
     <!-- contact management -->
     <route id="contact.send" path="/contact" methods="post">
         <default key="_controller">ContactOptionBuilder\Controller\ContactOptionBuilderController::sendAction</default>

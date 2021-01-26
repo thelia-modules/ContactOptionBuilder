@@ -2,8 +2,8 @@
 
 namespace ContactOptionBuilder\Form;
 
-use ContactOptionBuilder\Model\ContactOptionFormBuider;
-use ContactOptionBuilder\Model\ContactOptionFormBuiderQuery;
+use ContactOptionBuilder\Model\ContactOptionFormBuilder;
+use ContactOptionBuilder\Model\ContactOptionFormBuilderQuery;
 
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -11,6 +11,8 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\BaseForm;
+use Thelia\Model\LangQuery;
+
 class ContactOptionForm extends BaseForm
 {
     protected function buildForm()
@@ -79,13 +81,19 @@ class ContactOptionForm extends BaseForm
 
     public function getAllSubject()
     {
-        $subjects = ContactOptionFormBuiderQuery::create()
+        $subjects = ContactOptionFormBuilderQuery::create()
                         ->find();
 
         $data =[];
 
-        /** @var ContactOptionFormBuider $subject */
+        $lang = $this->getRequest()->getSession()->getLang();
+        if (!$lang){
+            $lang = LangQuery::create()->filterByByDefault(1)->findOne();
+        }
+
+        /** @var ContactOptionFormBuilder $subject */
         foreach ($subjects as $subject){
+            $subject->setLocale($lang->getLocale());
             $data[$subject->getIdCofb()] = $subject->getSubjectCofb();
         }
 
