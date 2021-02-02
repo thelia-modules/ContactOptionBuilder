@@ -10,6 +10,7 @@ use Thelia\Core\Template\Element\LoopResultRow;
 use Thelia\Core\Template\Element\PropelSearchLoopInterface;
 use Thelia\Core\Template\Loop\Argument\Argument;
 use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
+use Thelia\Model\Lang;
 use Thelia\Model\LangQuery;
 
 
@@ -47,6 +48,7 @@ class ContactOptionLoop extends BaseLoop implements PropelSearchLoopInterface
 
     public function parseResults(LoopResult $loopResult)
     {
+        $activeLangs = LangQuery::create()->filterByActive(1)->find();
         $lang = LangQuery::create()->filterById($this->getLangId())->findOne();
         if (!$lang){
             $lang = $this->getCurrentRequest()->getSession()->getLang();
@@ -56,6 +58,8 @@ class ContactOptionLoop extends BaseLoop implements PropelSearchLoopInterface
         }
         /** @var ContactOptionFormBuilder $contactForm */
         foreach ($loopResult->getResultDataCollection() as $contactForm) {
+            $translateLangs = [];
+
             $contactForm->setLocale($lang->getLocale());
             $loopResultRow = new LoopResultRow($contactForm);
             $loopResultRow->set('ID_COB', $contactForm->getIdCofb());
@@ -65,6 +69,16 @@ class ContactOptionLoop extends BaseLoop implements PropelSearchLoopInterface
             $loopResultRow->set('COMPANY_NAME_OPT_COB', $contactForm->getRaisonSocialeOptCofb());
             $loopResultRow->set('MESSAGE_OPT_COB', $contactForm->getMessageCofb());
             $loopResultRow->set('EMAIL_TO_COB', $contactForm->getEmailToCofb());
+
+            /** @var Lang $activeLang */
+            foreach ($activeLangs as $activeLang){
+                $contactForm->setLocale($activeLang->getLocale());
+                if (null !== $contactForm->getSubjectCofb()){
+                    $translateLangs[] = $activeLang->getId();
+                }
+            }
+
+            $loopResultRow->set('TRANSLATE_IN', implode(',', $translateLangs));
 
             $loopResult->addRow($loopResultRow);
         }
