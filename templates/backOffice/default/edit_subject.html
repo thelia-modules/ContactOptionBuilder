@@ -1,0 +1,56 @@
+{default_translation_domain domain='contactoptionbuilder.bo.default'}
+{extends file="admin-layout.tpl"}
+
+{block name="page-title"}{intl l='Edit Subject'}{/block}
+
+{block name="main-content"}
+<div class="general-block-decorator">
+    <div class="row">
+        <div class="col-md-12 title ">
+            {intl l="Edit Subject"}
+        </div>
+    </div>
+    <div class="form-container">
+        <div class="row inner-toolbar"></div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="title title-without-tabs clearfix">{intl l="Subject"}</div>
+                {form name="contactoptionbuilder.subject.form"}
+                    <form method="POST" id="cob-form" action="{url path="/admin/module/contactoptionbuilder/savesubject/"}{$idSubject}" {form_enctype} class="clearfix">
+                        <div class="row general-block-decorator">
+                            <div class="col-md-12">
+                                {include
+                                hide_save_and_close_button = true
+                                file = "includes/inner-form-toolbar.html"
+                                page_url  = "{url path="/admin/module/contactoptionbuilder/edit/{$idSubject}"}"
+                                close_url = {url path='admin/module/ContactOptionBuilder'}
+                                }
+                                {loop type="contactoptionbuilder.contact.option.loop" name="contactoptionbuilder.contact.option.loop" id_cob=$idSubject lang_id=$edit_language_id}
+                                    {form_hidden_fields}
+
+                                    {if $form_error}<div class="alert alert-danger">{$form_error_message}</div>{/if}
+
+                                    {form_field form=$form field='success_url'}
+                                        <input type="hidden" name="{$name}" value="{url path={navigate to="current"}}"/>
+                                    {/form_field}
+
+                                    <div class="align-left">
+                                        {render_form_field field="cob_subject" value=$SUBJECT_COB}
+                                        {render_form_field field="email_to" value=$EMAIL_TO_COB}
+                                        {render_form_field field="cob_message" value=$MESSAGE_OPT_COB}
+
+                                        {render_form_field field="cob_user_thelia" value=$TYPE_USER_COB}
+                                        {render_form_field field="cob_order_option" value=$COMMANDE_OPT_COB}
+                                        {render_form_field field="cob_rs_option" value=$COMPANY_NAME_OPT_COB}
+                                    </div>
+                                {/loop}
+                            </div>
+                        </div>
+                    </form>
+                {/form}
+            </div>
+        </div>
+    </div>
+</div>
+
+{/block}
