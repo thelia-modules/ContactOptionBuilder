@@ -40,6 +40,7 @@ Add email subject, destination email and option on form contact.
 |$COMPANY_NAME_OPT_COB  | bool display input company name      |
 |$MESSAGE_OPT_COB       | what you can do with this subject    |
 |$EMAIL_TO_COB          | destination email                    |
+|$TRANSLATE_IN          | ids of the languages ​​in which this subject is translated|
 
 ### Exemple
 

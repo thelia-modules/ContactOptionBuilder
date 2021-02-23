@@ -25,13 +25,13 @@ namespace ContactOptionBuilder\Controller;
 
 use ContactOptionBuilder\ContactOptionBuilder;
 use ContactOptionBuilder\Service\COBService;
-
 use ReCaptcha\Event\ReCaptchaCheckEvent;
 use ReCaptcha\Event\ReCaptchaEvents;
 use Thelia\Controller\Front\BaseFrontController;
 use Thelia\Form\Exception\FormValidationException;
 use Thelia\Log\Tlog;
 use Thelia\Model\ConfigQuery;
+use Thelia\Model\LangQuery;
 
 /**
  * Class ContactOptionBuilderController
@@ -68,8 +68,13 @@ class ContactOptionBuilderController extends BaseFrontController
             /** @var COBService $cobService */
             $cobService = $this->getContainer()->get('contactoptionbuilder.service'); // Get COB Service
 
-            $to = $cobService->getDestinationEmail($subjectId); // Get destination email for selected subject
-            $subjectLabel = $cobService->getSubject($subjectId); // Get subject label for selected subject
+            $lang = $this->getSession()->getLang();
+            if (!$lang){
+                $lang = LangQuery::create()->filterByByDefault(1)->findOne();
+            }
+
+            $to = $cobService->getDestinationEmail($subjectId, $lang->getLocale()); // Get destination email for selected subject
+            $subjectLabel = $cobService->getSubject($subjectId, $lang->getLocale()); // Get subject label for selected subject
 
             // Creating email template
             $htmlBody = '<p><strong>'.$subjectLabel.'</strong></p>';
