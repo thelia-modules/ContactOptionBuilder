@@ -2,7 +2,6 @@
 
 namespace ContactOptionBuilder\Form;
 
-use Propel\Runtime\ActiveQuery\Criteria;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -10,9 +9,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\BaseForm;
-use Thelia\Model\Lang;
-use Thelia\Model\Message;
-use Thelia\Model\MessageQuery;
 
 class SubjectAdminForm extends BaseForm
 {

@@ -13,6 +13,7 @@
                 <form method="POST" id="cob-form" action="{url path="/admin/module/contactoptionbuilder/addsubject"}" {form_enctype} class="clearfix">
                     <div class="row general-block-decorator">
                         <div class="col-md-12">
+
                             {form_hidden_fields}
 
                             {if $form_error}<div class="alert alert-danger">{$form_error_message}</div>{/if}
@@ -74,12 +75,15 @@
                     {intl l="Tips"}
                 </th>
                 <th>
+                    {intl l="Translations"}
+                </th>
+                <th>
 
                 </th>
             </tr>
             </thead>
             <tbody>
-            {loop type="contactoptionbuilder.contact.option.loop" name="contactoptionbuilder.contact.option.loop" }
+            {loop type="contactoptionbuilder.contact.option.loop" name="contactoptionbuilder.contact.option.loop" lang_id={lang attr='id'}}
                 <tr>
                     <td>
                         {$ID_COB}
@@ -115,6 +119,12 @@
                         {$MESSAGE_OPT_COB }
                     </td>
                     <td>
+                        {loop name="lang_list" type="lang" backend_context="1" id=$TRANSLATE_IN}
+                            <img src="{image file="assets/img/flags/$CODE.png"}" alt={$TITLE} />
+                        {/loop}
+                    </td>
+                    <td>
+                        <a class="btn btn-default btn-default" href="{url path="/admin/module/contactoptionbuilder/edit/"}{$ID_COB}" title="{intl l="ACTION_EDIT_SUBJECT"}"><span class="glyphicon glyphicon-edit"></span></a>
                         <a class="btn btn-default btn-danger" href="{url path="/admin/module/contactoptionbuilder/delsubject/"}{$ID_COB}" title="{intl l="ACTION_DELETE_SUBJECT"}"><span class="glyphicon glyphicon-remove-sign"></span></a>
                     </td>
                 </tr>

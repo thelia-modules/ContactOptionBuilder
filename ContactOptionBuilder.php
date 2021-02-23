@@ -12,7 +12,7 @@
 
 namespace ContactOptionBuilder;
 
-use ContactOptionBuilder\Model\ContactOptionFormBuiderQuery;
+use ContactOptionBuilder\Model\ContactOptionFormBuilderQuery;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Symfony\Component\Finder\Finder;
 use Thelia\Install\Database;
@@ -32,7 +32,7 @@ class ContactOptionBuilder extends BaseModule
     public function postActivation(ConnectionInterface $con = null)
     {
         try {
-            ContactOptionFormBuiderQuery::create()->findOne();
+            ContactOptionFormBuilderQuery::create()->findOne();
 
         } catch (\Exception $e) {
             $database = new Database($con);
