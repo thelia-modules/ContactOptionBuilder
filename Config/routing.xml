@@ -4,7 +4,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <route id="contactoptionbuilder.add.subject.root" path="/admin/module/contactoptionbuilder/addsubject" methods="POST">
+    <!--<route id="contactoptionbuilder.add.subject.root" path="/admin/module/contactoptionbuilder/addsubject" methods="POST">
         <default key="_controller">ContactOptionBuilder\Controller\AdminController::addSubjectAction</default>
     </route>
 
@@ -18,13 +18,13 @@
 
     <route id="contactoptionbuilder.save.subject.root" path="/admin/module/contactoptionbuilder/savesubject/{idSubject}" methods="POST">
         <default key="_controller">ContactOptionBuilder\Controller\AdminController::saveSubjectAction</default>
-    </route>
+    </route>-->
 
     <!-- contact management -->
-    <route id="contact.send" path="/contact" methods="post">
+    <!--<route id="contact.send" path="/contact" methods="post">
         <default key="_controller">ContactOptionBuilder\Controller\ContactOptionBuilderController::sendAction</default>
         <default key="_view">contact</default>
-    </route>
+    </route>-->
     <!-- end contact management -->
 
 </routes>

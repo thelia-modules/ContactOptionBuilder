@@ -4,8 +4,10 @@ namespace ContactOptionBuilder\Controller;
 
 
 use ContactOptionBuilder\ContactOptionBuilder;
+use ContactOptionBuilder\Form\SubjectAdminForm;
 use ContactOptionBuilder\Service\COBService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
@@ -13,8 +15,10 @@ use Thelia\Core\Translation\Translator;
 use Thelia\Form\Exception\FormValidationException;
 use Thelia\Model\LangQuery;
 use Thelia\Tools\URL;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @Route("/admin/module/contactoptionbuilder", name="admin_contact_option_builder")
  * Class AdminController
  * @package ContactOptionBuilder\Controller
  *
@@ -22,7 +26,10 @@ use Thelia\Tools\URL;
  */
 class AdminController extends BaseAdminController
 {
-    public function addSubjectAction()
+    /**
+     * @Route("/addsubject", name="_add_subject", methods="POST")
+     */
+    public function addSubjectAction(COBService $cobService)
     {
         // Check if current user is Admin
         $authFail = $this->checkAuth(AdminResources::MODULE, ContactOptionBuilder::DOMAIN_NAME, AccessManager::CREATE);
@@ -30,13 +37,10 @@ class AdminController extends BaseAdminController
             return $authFail;
         }
 
-        $form = $this->createForm('contactoptionbuilder.subject.form'); // Create contact form
+        $form = $this->createForm(SubjectAdminForm::getName()); // Create contact form
 
         try {
             $this->validateForm($form); // Validation of the form constraints
-
-            /** @var COBService $cobService */
-            $cobService = $this->getContainer()->get('contactoptionbuilder.service'); // Get COB service
 
             // Get COB parameters (has order / need user connected)
             $orderListOption = $form->getForm()->get('cob_order_option')->getData();
@@ -81,17 +85,16 @@ class AdminController extends BaseAdminController
         );
     }
 
-    public function delSubjectAction($idSubject)
+    /**
+     * @Route("/delsubject/{idSubject}", name="_delete_subject", methods="GET")
+     */
+    public function delSubjectAction($idSubject, COBService $cobService)
     {
         // Check if current user is Admin
         $authFail = $this->checkAuth(AdminResources::MODULE, ContactOptionBuilder::DOMAIN_NAME, AccessManager::CREATE);
         if ($authFail !== null) {
             return $authFail;
         }
-
-
-        /** @var COBService $cobService */
-        $cobService = $this->getContainer()->get('contactoptionbuilder.service'); // Get COB service
 
         $cobService->delContactFormOption($idSubject); // Delete option
 
@@ -101,6 +104,9 @@ class AdminController extends BaseAdminController
         );
     }
 
+    /**
+     * @Route("/edit/{idSubject}", name="_show", methods="GET")
+     */
     public function showEditPageAction($idSubject)
     {
         return $this->render('edit_subject',[
@@ -112,18 +118,19 @@ class AdminController extends BaseAdminController
      * @param $idSubject
      * @return mixed|\Symfony\Component\HttpFoundation\Response|\Thelia\Core\HttpFoundation\Response|static
      * @throws \Propel\Runtime\Exception\PropelException
+     * @Route("/savesubject/{idSubject}", name="_save_subject", methods="POST")
      */
-    public function saveSubjectAction($idSubject)
+    public function saveSubjectAction($idSubject, RequestStack $requestStack)
     {
         $authFail = $this->checkAuth(AdminResources::MODULE, ContactOptionBuilder::DOMAIN_NAME, AccessManager::CREATE);
         if ($authFail !== null) {
             return $authFail;
         }
 
-        $form = $this->createForm('contactoptionbuilder.subject.form'); // Create contact form
+        $form = $this->createForm(SubjectAdminForm::getName()); // Create contact form
 
         try {
-            $lang = $this->getRequest()->getSession()->get("thelia.admin.edition.lang");
+            $lang = $requestStack->getCurrentRequest()->getSession()->get("thelia.admin.edition.lang");
             if (!$lang){
                 $lang = LangQuery::create()->filterByByDefault(1)->findOne();
             }

@@ -6,6 +6,7 @@ use ContactOptionBuilder\Model\ContactOptionFormBuilder;
 use ContactOptionBuilder\Model\ContactOptionFormBuilderQuery;
 
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -18,7 +19,7 @@ class ContactOptionForm extends BaseForm
     protected function buildForm()
     {
         $this->formBuilder
-            ->add('name', 'text', array(
+            ->add('name', TextType::class, array(
                 'constraints' => array(
                     new NotBlank(),
                 ),
@@ -27,7 +28,7 @@ class ContactOptionForm extends BaseForm
                     'for' => 'name_contact',
                 ),
             ))
-            ->add('email', 'email', array(
+            ->add('email', EmailType::class, array(
                 'constraints' => array(
                     new NotBlank(),
                     new Email(),
@@ -47,7 +48,7 @@ class ContactOptionForm extends BaseForm
                     'choices' => $this->getAllSubject(),
                 ]
             )
-            ->add('message', 'text', array(
+            ->add('message', TextType::class, array(
                 'constraints' => array(
                     new NotBlank(),
                 ),
@@ -94,14 +95,14 @@ class ContactOptionForm extends BaseForm
         /** @var ContactOptionFormBuilder $subject */
         foreach ($subjects as $subject){
             $subject->setLocale($lang->getLocale());
-            $data[$subject->getIdCofb()] = $subject->getSubjectCofb();
+            $data[$subject->getSubjectCofb()] = $subject->getIdCofb();
         }
 
         return $data;
     }
 
-    public function getName()
+    public static function getName()
     {
-        return "contact_option_builder_subject";
+        return "contactoptionbuilder_front_form";
     }
 }

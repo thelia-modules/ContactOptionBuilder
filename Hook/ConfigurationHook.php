@@ -7,6 +7,17 @@ use Thelia\Core\Hook\BaseHook;
 
 class ConfigurationHook extends BaseHook
 {
+    protected $kernelEnvironment;
+
+    /**
+     * ConfigurationHook constructor.
+     * @param $kernelEnvironment
+     */
+    public function __construct($kernelEnvironment)
+    {
+        $this->kernelEnvironment = $kernelEnvironment;
+    }
+
     /**
      * Add module configuration content
      *
@@ -18,7 +29,7 @@ class ConfigurationHook extends BaseHook
             $this->render(
                 'module_configuration.html',
                 [
-                    'kernelEnvironment' => $this->environment
+                    'kernelEnvironment' => $this->kernelEnvironment
                 ]
             )
         );

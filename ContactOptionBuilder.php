@@ -14,6 +14,7 @@ namespace ContactOptionBuilder;
 
 use ContactOptionBuilder\Model\ContactOptionFormBuilderQuery;
 use Propel\Runtime\Connection\ConnectionInterface;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\Finder\Finder;
 use Thelia\Install\Database;
 use Thelia\Module\BaseModule;
@@ -29,7 +30,7 @@ class ContactOptionBuilder extends BaseModule
     /** @var string */
     const MODULE_CODE = 'ContactOptionBuilder';
 
-    public function postActivation(ConnectionInterface $con = null)
+    public function postActivation(ConnectionInterface $con = null): void
     {
         try {
             ContactOptionFormBuilderQuery::create()->findOne();
@@ -40,7 +41,7 @@ class ContactOptionBuilder extends BaseModule
         }
     }
 
-    public function update($currentVersion, $newVersion, ConnectionInterface $con = null)
+    public function update($currentVersion, $newVersion, ConnectionInterface $con = null): void
     {
         $finder = Finder::create()
             ->name('*.sql')
@@ -56,5 +57,13 @@ class ContactOptionBuilder extends BaseModule
                 $database->insertSql(null, [$file->getPathname()]);
             }
         }
+    }
+
+    public static function configureServices(ServicesConfigurator $servicesConfigurator): void
+    {
+        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+            ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
+            ->autowire(true)
+            ->autoconfigure(true);
     }
 }
