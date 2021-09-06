@@ -32,12 +32,10 @@ class ContactOptionBuilder extends BaseModule
 
     public function postActivation(ConnectionInterface $con = null): void
     {
-        try {
-            ContactOptionFormBuilderQuery::create()->findOne();
-
-        } catch (\Exception $e) {
+        if (!self::getConfigValue('is_initialized', false)) {
             $database = new Database($con);
             $database->insertSql(null, [__DIR__ . "/Config/thelia.sql"]);
+            self::setConfigValue('is_initialized', true);
         }
     }
 
