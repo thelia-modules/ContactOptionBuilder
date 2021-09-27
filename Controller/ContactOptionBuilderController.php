@@ -24,16 +24,24 @@
 namespace ContactOptionBuilder\Controller;
 
 use ContactOptionBuilder\ContactOptionBuilder;
+use ContactOptionBuilder\Form\ContactOptionForm;
 use ContactOptionBuilder\Service\COBService;
 use ReCaptcha\Event\ReCaptchaCheckEvent;
 use ReCaptcha\Event\ReCaptchaEvents;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Controller\Front\BaseFrontController;
+use Thelia\Core\Template\ParserContext;
+use Thelia\Core\Translation\Translator;
 use Thelia\Form\Exception\FormValidationException;
 use Thelia\Log\Tlog;
+use Thelia\Mailer\MailerFactory;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\LangQuery;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @Route("/contact", name="front_contact_option_builder")
  * Class ContactOptionBuilderController
  * @package ContactOptionBuilder\Controller
  *
@@ -41,21 +49,23 @@ use Thelia\Model\LangQuery;
  */
 class ContactOptionBuilderController extends BaseFrontController
 {
-
-    public function sendAction()
+    /**
+     * @Route("", name="_contact", methods="POST")
+     */
+    public function sendAction(COBService $cobService, RequestStack $requestStack, MailerFactory $mailer, ParserContext $parserContext, EventDispatcherInterface $dispatcher)
     {
         // Obtain and dipatch CAPTCHA event
         $checkCaptchaEvent = new ReCaptchaCheckEvent();
-        $this->dispatch(ReCaptchaEvents::CHECK_CAPTCHA_EVENT, $checkCaptchaEvent);
+        $dispatcher->dispatch($checkCaptchaEvent, ReCaptchaEvents::CHECK_CAPTCHA_EVENT);
 
-        $contactForm = $this->createForm('contactoptionbuilder.front.form'); // Get contact form
+        $contactForm = $this->createForm(ContactOptionForm::getName()); // Get contact form
 
         try {
             $form = $this->validateForm($contactForm); // Validation of the form constraints
 
             // Check CAPTCHA success
             if ($checkCaptchaEvent->isHuman() == false) {
-                $err_message = $this->getTranslator()->trans(
+                $err_message = Translator::getInstance()->trans(
                     "Invalid captcha",
                     [],
                     ContactOptionBuilder::MESSAGE_DOMAIN
@@ -65,10 +75,7 @@ class ContactOptionBuilderController extends BaseFrontController
 
             $subjectId = $form->get('contact_subject')->getData();
 
-            /** @var COBService $cobService */
-            $cobService = $this->getContainer()->get('contactoptionbuilder.service'); // Get COB Service
-
-            $lang = $this->getSession()->getLang();
+            $lang = $requestStack->getCurrentRequest()->getSession()->getLang();
             if (!$lang){
                 $lang = LangQuery::create()->filterByByDefault(1)->findOne();
             }
@@ -94,7 +101,7 @@ class ContactOptionBuilderController extends BaseFrontController
             }
 
             // Send the mail
-            $this->getMailer()->sendSimpleEmailMessage(
+            $mailer->sendSimpleEmailMessage(
                 [ConfigQuery::getStoreEmail() => $form->get('name')->getData()],
                 [$to],
                 $subjectLabel,
@@ -120,7 +127,7 @@ class ContactOptionBuilderController extends BaseFrontController
 
         $contactForm->setErrorMessage($error_message);
 
-        $this->getParserContext()
+        $parserContext
             ->addForm($contactForm)
             ->setGeneralError($error_message);
 

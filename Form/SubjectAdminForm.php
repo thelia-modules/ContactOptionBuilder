@@ -85,8 +85,8 @@ class SubjectAdminForm extends BaseForm
             );
     }
 
-    public function getName()
+    public static function getName()
     {
-        return "contact_option_builder_subject";
+        return "contactoptionbuilder_subject_form";
     }
 }

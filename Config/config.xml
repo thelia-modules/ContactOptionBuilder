@@ -9,17 +9,17 @@
     </loops>
 
     <forms>
-        <form name="contactoptionbuilder.subject.form" class="ContactOptionBuilder\Form\SubjectAdminForm" />
-        <form name="contactoptionbuilder.front.form" class="ContactOptionBuilder\Form\ContactOptionForm" />
+        <form name="contactoptionbuilder_subject_form" class="ContactOptionBuilder\Form\SubjectAdminForm" />
+        <form name="contactoptionbuilder_front_form" class="ContactOptionBuilder\Form\ContactOptionForm" />
     </forms>
 
     <commands>
     </commands>
 
-    <services>
+    <!--<services>
         <service id="contactoptionbuilder.service" class="ContactOptionBuilder\Service\COBService">
         </service>
-    </services>
+    </services>-->
 
     <hooks>
         <hook id="contactoptionbuilder.admin.hook" class="ContactOptionBuilder\Hook\AdminInterfaceHook" scope="request">
@@ -29,6 +29,7 @@
 
         <hook id="contactoptionbuilder.manager.config.hook" class="ContactOptionBuilder\Hook\ConfigurationHook" scope="request">
             <tag name="hook.event_listener" event="module.configuration" type="backoffice" />
+            <argument type="service" id="kernel"/>
         </hook>
     </hooks>
 
