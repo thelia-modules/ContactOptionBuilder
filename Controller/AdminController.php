@@ -120,7 +120,7 @@ class AdminController extends BaseAdminController
      * @throws \Propel\Runtime\Exception\PropelException
      * @Route("/savesubject/{idSubject}", name="_save_subject", methods="POST")
      */
-    public function saveSubjectAction($idSubject, RequestStack $requestStack)
+    public function saveSubjectAction($idSubject, RequestStack $requestStack, COBService $cobService)
     {
         $authFail = $this->checkAuth(AdminResources::MODULE, ContactOptionBuilder::DOMAIN_NAME, AccessManager::CREATE);
         if ($authFail !== null) {
@@ -136,9 +136,6 @@ class AdminController extends BaseAdminController
             }
             $this->validateForm($form); // Validation of the form constraints
 
-            /** @var COBService $cobService */
-            $cobService = $this->getContainer()->get('contactoptionbuilder.service'); // Get COB service
-
             // Get COB parameters (has order / need user connected)
             $orderListOption = $form->getForm()->get('cob_order_option')->getData();
             $userThelia = $form->getForm()->get('cob_user_thelia')->getData();
@@ -147,7 +144,6 @@ class AdminController extends BaseAdminController
             if (true === $orderListOption && false === $userThelia){
                 throw new FormValidationException(Translator::getInstance()->trans("Can't show order list only for user thelia"));
             }
-            $lang = $this->getSession()->get('thelia.admin.edition.lang');
 
             // Get data from Form
             $dataConfiguration = [
