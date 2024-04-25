@@ -103,7 +103,7 @@ class ContactOptionBuilderController extends BaseFrontController
             // Send the mail
             $mailer->sendSimpleEmailMessage(
                 [ConfigQuery::getStoreEmail() => $form->get('name')->getData()],
-                [$to],
+                $to,
                 $subjectLabel,
                 $htmlBody,
                 '',

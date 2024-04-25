@@ -98,7 +98,7 @@ class COBService
     /**
      * @param $idSubject
      * @param $locale
-     * @return string
+     * @return array
      * Get the destination email for the selected subject
      */
     public function getDestinationEmail($idSubject, $locale)
@@ -113,7 +113,7 @@ class COBService
             throw new FormValidationException(Translator::getInstance()->trans("Subject does not exist !"));
         }
 
-        return $cob->setLocale($locale)->getEmailToCofb(); // Return the COB Destination Email
+        return [$cob->setLocale($locale)->getEmailToCofb() => $cob->setLocale($locale)->getSubjectCofb()]; // Return the COB Destination Email
     }
 
     /**
