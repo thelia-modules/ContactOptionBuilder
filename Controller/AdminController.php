@@ -80,7 +80,7 @@ class AdminController extends BaseAdminController
         }
 
         // Redirect to module page
-        return RedirectResponse::create(
+        return new RedirectResponse(
             URL::getInstance()->absoluteUrl('/admin/module/' . ContactOptionBuilder::MODULE_CODE)
         );
     }
@@ -99,7 +99,7 @@ class AdminController extends BaseAdminController
         $cobService->delContactFormOption($idSubject); // Delete option
 
         // Redirect to module page
-        return RedirectResponse::create(
+        return new RedirectResponse(
             URL::getInstance()->absoluteUrl('/admin/module/' . ContactOptionBuilder::MODULE_CODE)
         );
     }
@@ -173,7 +173,7 @@ class AdminController extends BaseAdminController
                 ]
             );
         }
-        return RedirectResponse::create(
+        return new RedirectResponse(
             URL::getInstance()->absoluteUrl('/admin/module/contactoptionbuilder/edit/' . $idSubject)
         );
     }
